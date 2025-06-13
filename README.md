@@ -66,6 +66,83 @@ xsim riscv_tb_top   -gui   -testplusarg UVM_TESTNAME=load_store_test
 └──────────┴──────────┴──────────────┴──────────────────────┘
 ```
 
+## ✅ Verification Capabilities
+
+With this structure you can now:
+
+- ✅ **Generate load/store transactions**
+- ✅ **Drive signals to the DUT**
+- ✅ **Monitor DUT responses**
+- ✅ **Run basic directed tests**
+
+For full verification, you'll eventually want to add:
+
+- ➕ **A scoreboard for automatic checking**
+- ➕ **Functional coverage**
+- ➕ **Randomized test sequences**
+
+---
+
+⚡ **This structure gives you a minimal but fully functional UVM testbench for load/store operations that compiles and runs in Vivado XSIM.**
+
+
+
+# Simplified UVM Testbench Structure
+
+```plaintext
+/riscv_uvm_verif
+│
+├── /rtl
+│   ├── riscv_definitions.sv    # RISC-V parameters and types
+│   └── memory_access.sv        # MEM stage (DUT)
+│
+├── /tb
+│   ├── /env
+│   │   └── /agents/mem_agent
+│   │       ├── mem_transaction.sv  # UVM sequence item
+│   │       ├── mem_sequencer.sv    # UVM sequencer
+│   │       ├── mem_driver.sv       # UVM driver
+│   │       └── mem_monitor.sv      # UVM monitor (NEW)
+│   │
+│   ├── mem_interface.sv        # DUT-TB interface
+│   └── /tests
+│       └── load_store_test.sv  # Main test case
+│
+├── /sim
+│   ├── rtl.scrlist             # RTL compilation order
+│   ├── uvm.scrlist             # UVM compilation order
+│   └── sim.scrlist             # Master compilation list
+│
+└── riscv_tb_top.sv             # Top-level testbench
+```
+
+# Key Files with Purposes
+
+## 1️⃣ Core UVM Components
+
+| File               | Purpose                                      |
+|--------------------|----------------------------------------------|
+| mem_transaction.sv | Defines load/store operations as UVM transactions |
+| mem_sequencer.sv   | Controls transaction flow from sequences to driver |
+| mem_driver.sv      | Converts UVM transactions to signal-level activity |
+| mem_monitor.sv     | Captures DUT responses for verification |
+
+## 2️⃣ Infrastructure
+
+| File              | Purpose                                 |
+|-------------------|-----------------------------------------|
+| mem_interface.sv  | Physical signals connecting TB to DUT    |
+| riscv_tb_top.sv   | Instantiates DUT and UVM environment     |
+
+## 3️⃣ Control Files
+
+| File         | Purpose                                          |
+|--------------|--------------------------------------------------|
+| rtl.scrlist  | Compiles RTL files in correct order              |
+| uvm.scrlist  | Compiles UVM components in dependency order      |
+| sim.scrlist  | Master file combining RTL and UVM lists          |
+
+
 ## License
 
 MIT License - See LICENSE for details.
