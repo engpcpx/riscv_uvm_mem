@@ -66,14 +66,14 @@ xsim riscv_tb_top   -gui   -testplusarg UVM_TESTNAME=load_store_test
 └──────────┴──────────┴──────────────┴──────────────────────┘
 ```
 
-## ✅ Verification Capabilities
+## Verification Capabilities
 
 With this structure you can now:
 
-- ✅ **Generate load/store transactions**
-- ✅ **Drive signals to the DUT**
-- ✅ **Monitor DUT responses**
-- ✅ **Run basic directed tests**
+- **Generate load/store transactions**
+- **Drive signals to the DUT**
+- **Monitor DUT responses**
+- **Run basic directed tests**
 
 For full verification, you'll eventually want to add:
 
@@ -92,33 +92,40 @@ For full verification, you'll eventually want to add:
 ```plaintext
 /riscv_uvm_mem
 │
+/riscv_uvm_verif
+│
 ├── /rtl
-│   ├── riscv_definitions.sv    # RISC-V parameters and types
-│   └── memory_access.sv        # MEM stage (DUT)
+│ ├── riscv_definitions.sv    # RISC-V ISA definitions
+│ ├── instruction_fetch.sv    # IF stage
+│ ├── instruction_decode.sv   # ID stage
+│ ├── execution.sv            # EX stage
+│ ├── memory_access.sv        # MEM stage (DUT focus)
+│ ├── write_back.sv           # WB stage
+│ └── riscv.sv           # Top-level core
 │
 ├── /tb
-│   ├── /env
-│   │   └── /agents/mem_agent
-│   │       ├── mem_transaction.sv  # UVM sequence item
-│   │       ├── mem_sequencer.sv    # UVM sequencer
-│   │       ├── mem_driver.sv       # UVM driver
-│   │       └── mem_monitor.sv      # UVM monitor (NEW)
-│   │
-│   ├── mem_interface.sv        # DUT-TB interface
-│   └── /tests
-│       └── load_store_test.sv  # Main test case
+│ ├── /env
+│ │ └── /agents/mem_agent
+│ │ ├── mem_transaction.sv  # Transaction item
+│ │ ├── mem_sequencer.sv    # Sequence control
+│ │ ├── mem_driver.sv       # Signal driver
+│ │ └── mem_monitor.sv      # Response monitor
+│ │
+│ ├── mem_interface.sv      # Physical interface
+│ └── /tests
+│ └── load_store_test.sv    # Main test case
 │
 ├── /sim
-│   ├── rtl.scrlist             # RTL compilation order
-│   ├── uvm.scrlist             # UVM compilation order
-│   └── sim.scrlist             # Master compilation list
+│ ├── rtl.scrlist   # RTL compile order
+│ ├── uvm.scrlist   # UVM compile order
+│ └── sim.scrlist   # Master compile list
 │
-└── riscv_tb_top.sv             # Top-level testbench
+└── riscv_tb_top.sv # Testbench top
 ```
 
 # Key Files with Purposes
 
-## 1️⃣ Core UVM Components
+## 1️Core UVM Components
 
 | File               | Purpose                                      |
 |--------------------|----------------------------------------------|
@@ -127,14 +134,14 @@ For full verification, you'll eventually want to add:
 | mem_driver.sv      | Converts UVM transactions to signal-level activity |
 | mem_monitor.sv     | Captures DUT responses for verification |
 
-## 2️⃣ Infrastructure
+## 2️Infrastructure
 
 | File              | Purpose                                 |
 |-------------------|-----------------------------------------|
 | mem_interface.sv  | Physical signals connecting TB to DUT    |
 | riscv_tb_top.sv   | Instantiates DUT and UVM environment     |
 
-## 3️⃣ Control Files
+## 3️Control Files
 
 | File         | Purpose                                          |
 |--------------|--------------------------------------------------|
@@ -145,24 +152,19 @@ For full verification, you'll eventually want to add:
 
 ## Key Design Patterns
 
-    Factory Pattern: Used throughout UVM for object creation (type_id::create)
+- **Factory Pattern**: Used throughout UVM for object creation (`type_id::create`)
+- **Observer Pattern**: Driver observes sequencer for new transactions
+- **Virtual Interface**: Bridges between UVM and signal-level DUT
+- **Constrained Random**: Transaction randomization with alignment rules
+- **Protocol Conversion**: Driver translates abstract transactions to signal timing
 
-    Observer Pattern: Driver observes sequencer for new transactions
+Each component follows the **Single Responsibility Principle** while working together through well-defined interfaces.
 
-    Virtual Interface: Bridges between UVM and signal-level DUT
+The testbench architecture enables:
 
-    Constrained Random: Transaction randomization with alignment rules
-
-    Protocol Conversion: Driver translates abstract transactions to signal timing
-
-Each component follows the single responsibility principle while working together through well-defined interfaces. The testbench architecture enables:
-
-    Reusability: Components can be extended for new tests
-
-    Maintainability: Clear separation of concerns
-
-    Scalability: Easy to add monitors, scoreboard, etc.
-
+- **Reusability**: Components can be extended for new tests
+- **Maintainability**: Clear separation of concerns
+- **Scalability**: Easy to add monitors, scoreboard, etc.
 
 
 ## License

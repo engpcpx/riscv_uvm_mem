@@ -1,3 +1,0 @@
-# Master compilation order
--f rtl.scrlist          # First compile RTL
--f uvm.scrlist          # Then compile UVM components

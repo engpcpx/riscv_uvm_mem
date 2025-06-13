@@ -1,0 +1,65 @@
+Executar o Teste
+
+No terminal do VS Code:
+bash
+
+chmod +x xsim_run.sh  # Dá permissão de execução
+./xsim_run.sh
+
+5. Saída Esperada
+
+    O Vivado compilará o RTL e o UVM.
+
+    O XSim executará o teste load_store_test e mostrará logs UVM no terminal.
+
+Verificação de Falhas Comuns
+
+    Erros de Compilação:
+
+        Certifique-se de que todos os arquivos .sv estão com a sintaxe correta.
+
+        Exemplo: mem_transaction.sv deve definir a classe de transação UVM.
+
+    Problemas com UVM:
+
+        Adicione -L uvm no xelab para vincular a biblioteca UVM.
+
+    Interface Não Configurada:
+
+        Verifique se mem_interface.sv está definido e conectado no top_tb.sv.
+
+
+Fluxo de Trabalho Típico:
+
+    Compilação:
+    bash
+
+    ./xsim_run.sh
+
+    (Usa as listas em sim/ para determinar a ordem de compilação)
+
+    Execução:
+
+        O testbench (top_tb.sv) inicia o teste especificado (load_store_test.sv)
+
+        O teste executa sequências através do agente de memória
+
+        O scoreboard verifica os resultados automaticamente
+
+    Análise:
+
+        Logs UVM mostram operações de memória e resultados
+
+        Erros são reportados pelo scoreboard quando detectados
+
+Esta estrutura mantém uma separação clara entre:
+
+    Código RTL (design)
+
+    Código de verificação (UVM)
+
+    Configuração (interfaces, listas)
+
+    Casos de teste
+
+Sendo facilmente extensível para novos testes e funcionalidades.

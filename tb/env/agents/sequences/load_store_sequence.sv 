@@ -1,0 +1,50 @@
+// load_store_sequence.sv
+class load_store_sequence extends uvm_sequence #(mem_transaction);
+  `uvm_object_utils(load_store_sequence)
+  
+  rand int num_transactions = 10;
+  constraint c_num_trans { num_transactions inside {[10:100]}; }
+  
+  function new(string name = "");
+    super.new(name);
+  endfunction
+  
+  task body();
+    mem_transaction tr;
+    
+    // Test pattern: Write then read same address
+    for(int i = 0; i < num_transactions; i++) begin
+      // Store operation
+      tr = mem_transaction::type_id::create("tr");
+      assert(tr.randomize() with {
+        is_write == 1;
+        addr % 4 == 0; // Word aligned
+        addr < 1024;
+      });
+      start_item(tr);
+      finish_item(tr);
+      
+      // Load operation
+      tr = mem_transaction::type_id::create("tr");
+      assert(tr.randomize() with {
+        is_write == 0;
+        addr == local::tr.addr; // Same address
+      });
+      start_item(tr);
+      finish_item(tr);
+    end
+    
+    // Test unaligned accesses (should fail)
+    `uvm_info("SEQ", "Testing unaligned accesses", UVM_MEDIUM)
+    foreach([1,2,3][i]) begin
+      tr = mem_transaction::type_id::create("tr");
+      assert(tr.randomize() with {
+        is_write == 1;
+        addr % 4 == i; // Misaligned
+        addr < 1024;
+      });
+      start_item(tr);
+      finish_item(tr);
+    end
+  endtask
+endclass
