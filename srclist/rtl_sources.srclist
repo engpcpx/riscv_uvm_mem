@@ -1,0 +1,9 @@
+# rtl_sources.lst
+# RTL compilation order
+rtl/riscv_definitions.sv
+rtl/instruction_fetch.sv
+rtl/instruction_decode.sv
+rtl/execution.sv
+rtl/memory_access.sv
+rtl/hazard_control.sv
+rtl/RISCV.sv
