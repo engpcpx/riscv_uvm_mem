@@ -1,154 +1,92 @@
 package riscv_pkg;
-  import uvm_pkg::*;  // Import UVM if used in testbench
+  import uvm_pkg::*;  // UVM import for testbench components
 
   // =============================================
-  // Basic definitions for 32-bit RISC-V architecture
+  // RISC-V 32-bit Memory Instruction Configuration
   // =============================================
-  parameter XLEN          = 32;       // Register size
-  parameter IMM_SIZE      = 12;       // Immediate field size
-  parameter MEM_ADDR_SIZE = XLEN;     // Memory address size
+  parameter XLEN          = 32;       // Register width (32-bit)
+  parameter MEM_ADDR_SIZE = XLEN;     // Memory address space
+  parameter MEM_ALIGNMENT = 4;        // 4-byte alignment for LW/SW
 
   // =============================================
-  // Opcodes and funct3 for memory and ALU instructions
+  // Memory Instruction Opcodes and Function Codes
   // =============================================
   typedef enum logic [6:0] {
-    OP_LOAD    = 7'b0000011,  // LW
-    OP_STORE   = 7'b0100011,  // SW
-    OP_OP_IMM  = 7'b0010011,  // ADDI
-    OP_OP      = 7'b0110011   // ADD, SUB
-  } opcode_t;
+    OP_LOAD  = 7'b0000011,  // Load Word (LW)
+    OP_STORE = 7'b0100011   // Store Word (SW)
+  } mem_opcode_t;
 
-  // funct3 fields for memory instructions
   typedef enum logic [2:0] {
-    FUNCT3_LW = 3'b010,      // LW
-    FUNCT3_SW = 3'b010       // SW
+    FUNCT3_LW_SW = 3'b010   // funct3 code for both LW and SW
   } mem_funct3_t;
 
-  // funct3 fields for arithmetic instructions
-  typedef enum logic [2:0] {
-    FUNCT3_ADD  = 3'b000,    // ADD / ADDI
-    FUNCT3_SUB  = 3'b000     // SUB (uses funct7 to differentiate)
-  } alu_funct3_t;
-
-  // funct7 field for SUB (ADD vs. SUB)
-  typedef enum logic [6:0] {
-    FUNCT7_ADD = 7'b0000000,
-    FUNCT7_SUB = 7'b0100000
-  } funct7_t;
-
   // =============================================
-  // Structures to decode RISC-V instructions
+  // Instruction Format Structures
   // =============================================
   typedef struct packed {
-    logic [6:0]  funct7;
-    logic [4:0]  rs2;
-    logic [4:0]  rs1;
-    logic [2:0]  funct3;
-    logic [4:0]  rd;
-    logic [6:0]  opcode;
-  } r_type_instr_t;  // R-type format (ADD, SUB)
+    logic [11:0] imm;      // 12-bit offset
+    logic [4:0]  rs1;      // Base register
+    logic [2:0]  funct3;   // FUNCT3_LW_SW
+    logic [4:0]  rd;       // Destination (LW only)
+    logic [6:0]  opcode;   // OP_LOAD
+  } lw_instr_t;            // I-type format for LW
 
   typedef struct packed {
-    logic [11:0] imm;
-    logic [4:0]  rs1;
-    logic [2:0]  funct3;
-    logic [4:0]  rd;
-    logic [6:0]  opcode;
-  } i_type_instr_t;  // I-type format (LW, ADDI)
-
-  typedef struct packed {
-    logic [6:0]  imm_hi;
-    logic [4:0]  rs2;
-    logic [4:0]  rs1;
-    logic [2:0]  funct3;
-    logic [4:0]  imm_lo;
-    logic [6:0]  opcode;
-  } s_type_instr_t;  // S-type format (SW)
+    logic [6:0]  imm_hi;   // Offset[11:5]
+    logic [4:0]  rs2;      // Source register
+    logic [4:0]  rs1;      // Base register
+    logic [2:0]  funct3;   // FUNCT3_LW_SW
+    logic [4:0]  imm_lo;   // Offset[4:0]
+    logic [6:0]  opcode;   // OP_STORE
+  } sw_instr_t;            // S-type format for SW
 
   // =============================================
-  // Utility functions for testing
+  // Memory Verification Utilities
   // =============================================
-  // Checks if an address is aligned for LW/SW (32-bit)
+  // Checks 4-byte alignment for memory operations
   function automatic logic is_mem_aligned(logic [XLEN-1:0] addr);
-    return (addr % 4 == 0);  // LW/SW require 4-byte alignment
+    return (addr % MEM_ALIGNMENT == 0);
   endfunction
 
-  // Generates an LW instruction (I-type)
-  function automatic i_type_instr_t gen_lw_instr(
+  // Generates valid LW instruction
+  function automatic lw_instr_t gen_lw_instr(
     input logic [4:0]  rd,
-    input logic [4:0]  rs1,
+    input logic [4:0]  base_reg,
     input logic [11:0] offset
   );
     return '{
       imm:    offset,
-      rs1:    rs1,
-      funct3: FUNCT3_LW,
+      rs1:    base_reg,
+      funct3: FUNCT3_LW_SW,
       rd:     rd,
       opcode: OP_LOAD
     };
   endfunction
 
-  // Generates an SW instruction (S-type)
-  function automatic s_type_instr_t gen_sw_instr(
-    input logic [4:0]  rs1,
-    input logic [4:0]  rs2,
+  // Generates valid SW instruction
+  function automatic sw_instr_t gen_sw_instr(
+    input logic [4:0]  base_reg,
+    input logic [4:0]  src_reg,
     input logic [11:0] offset
   );
     return '{
       imm_hi: offset[11:5],
-      rs2:    rs2,
-      rs1:    rs1,
-      funct3: FUNCT3_SW,
+      rs2:    src_reg,
+      rs1:    base_reg,
+      funct3: FUNCT3_LW_SW,
       imm_lo: offset[4:0],
       opcode: OP_STORE
     };
   endfunction
 
-  // Generates an ADD instruction (R-type)
-  function automatic r_type_instr_t gen_add_instr(
-    input logic [4:0] rd,
-    input logic [4:0] rs1,
-    input logic [4:0] rs2
-  );
-    return '{
-      funct7: FUNCT7_ADD,
-      rs2:    rs2,
-      rs1:    rs1,
-      funct3: FUNCT3_ADD,
-      rd:     rd,
-      opcode: OP_OP
-    };
-  endfunction
-
-  // Generates a SUB instruction (R-type)
-  function automatic r_type_instr_t gen_sub_instr(
-    input logic [4:0] rd,
-    input logic [4:0] rs1,
-    input logic [4:0] rs2
-  );
-    return '{
-      funct7: FUNCT7_SUB,
-      rs2:    rs2,
-      rs1:    rs1,
-      funct3: FUNCT3_SUB,
-      rd:     rd,
-      opcode: OP_OP
-    };
-  endfunction
-
-  // Generates an ADDI instruction (I-type)
-  function automatic i_type_instr_t gen_addi_instr(
-    input logic [4:0]  rd,
-    input logic [4:0]  rs1,
-    input logic [11:0] imm
-  );
-    return '{
-      imm:    imm,
-      rs1:    rs1,
-      funct3: FUNCT3_ADD,
-      rd:     rd,
-      opcode: OP_OP_IMM
-    };
-  endfunction
+  // =============================================
+  // Memory Transaction Type for UVM
+  // =============================================
+  typedef struct {
+    logic [XLEN-1:0] address;
+    logic [XLEN-1:0] data;
+    logic            is_load;  // 1=load, 0=store
+    logic [2:0]      size;     // 2=word(4B), 1=halfword, 0=byte
+  } mem_transaction_t;
 
 endpackage

@@ -1,8 +1,10 @@
-# rtl_sources.lst
-# RTL compilation order
-rtl/riscv_definitions.sv
+# RTL compilation order for RISCV pipeline
+# Ordered by dependency flow through 5-stage pipeline
+i
+ncludes/riscv_pkg.sv
 rtl/instruction_fetch.sv
 rtl/instruction_decode.sv
+rtl/riscv_definitions.sv
 rtl/execution.sv
 rtl/memory_access.sv
 rtl/hazard_control.sv
