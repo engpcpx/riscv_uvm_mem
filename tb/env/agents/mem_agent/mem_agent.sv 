@@ -1,4 +1,4 @@
-// mem_agent.sv (novo arquivo)
+// mem_agent.sv 
 class mem_agent extends uvm_agent;
   `uvm_component_utils(mem_agent)
   
