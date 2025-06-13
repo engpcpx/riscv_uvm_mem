@@ -1,0 +1,6 @@
+# UVM compilation order
+mem_interface.sv        # Physical interface
+mem_transaction.sv      # Transaction definition
+mem_sequencer.sv        # Transaction sequencer  
+mem_driver.sv           # Signal-level driver
+load_store_test.sv      # Test case

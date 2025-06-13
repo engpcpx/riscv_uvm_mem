@@ -143,6 +143,28 @@ For full verification, you'll eventually want to add:
 | sim.scrlist  | Master file combining RTL and UVM lists          |
 
 
+## Key Design Patterns
+
+    Factory Pattern: Used throughout UVM for object creation (type_id::create)
+
+    Observer Pattern: Driver observes sequencer for new transactions
+
+    Virtual Interface: Bridges between UVM and signal-level DUT
+
+    Constrained Random: Transaction randomization with alignment rules
+
+    Protocol Conversion: Driver translates abstract transactions to signal timing
+
+Each component follows the single responsibility principle while working together through well-defined interfaces. The testbench architecture enables:
+
+    Reusability: Components can be extended for new tests
+
+    Maintainability: Clear separation of concerns
+
+    Scalability: Easy to add monitors, scoreboard, etc.
+
+
+
 ## License
 
 MIT License - See LICENSE for details.

@@ -1,0 +1,3 @@
+# RTL compilation order
+riscv_definitions.sv    # Package with global definitions
+memory_access.sv        # Memory stage of pipeline
