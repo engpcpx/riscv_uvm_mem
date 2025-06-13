@@ -22,12 +22,12 @@ class base_sequence extends uvm_sequence #(mem_transaction);
     super.new(name);
   endfunction
 
-  // Método padrão para todas as sequências
+  // Standart method for all sequences
   virtual task body();
     `uvm_info(get_type_name(), "Starting base sequence", UVM_MEDIUM)
   endtask
   
-  // Geração de endereço alinhado
+  // Address aligned generation
   function logic [31:0] get_aligned_addr();
     return $urandom_range(min_addr, max_addr) & 32'hFFFF_FFFC;
   endfunction

@@ -12,7 +12,7 @@ class load_store_sequence extends base_sequence;
     super.body();
     mem_transaction tr;
 
-    // Teste padrão: write seguido de read
+    // Standard test padrão: write seguido de read
     foreach (TEST_PATTERNS[i]) begin
       // Store operation
       tr = mem_transaction::type_id::create("tr");
