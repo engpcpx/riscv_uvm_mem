@@ -90,7 +90,7 @@ For full verification, you'll eventually want to add:
 # Simplified UVM Testbench Structure
 
 ```plaintext
-/riscv_uvm_verif
+/riscv_uvm_mem
 │
 ├── /rtl
 │   ├── riscv_definitions.sv    # RISC-V parameters and types
