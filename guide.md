@@ -1,53 +1,54 @@
-# Guia de Configuração do XSIM - Resolução de Problemas
 
-## Problema: Comandos não encontrados
+# XSIM Configuration Guide - Troubleshooting
+
+## Problem: Commands not found
 ```
-xsim_run.sh: linha 8: xvlog: comando não encontrado
-xsim_run.sh: linha 24: xelab: comando não encontrado
-xsim_run.sh: linha 27: xsim: comando não encontrado
+xsim_run.sh: line 8: xvlog: command not found
+xsim_run.sh: line 24: xelab: command not found
+xsim_run.sh: line 27: xsim: command not found
 ```
 
-O erro indica que as ferramentas do Xilinx (xvlog, xelab, xsim) não estão no PATH do sistema. Você precisa configurar o ambiente do Vivado/XSIM primeiro.
+The error indicates that the Xilinx tools (xvlog, xelab, xsim) are not in the system PATH. You need to set up the Vivado/XSIM environment first.
 
-## Soluções
+## Solutions
 
-### 1. Configurar o ambiente do Vivado (mais comum)
+### 1. Set up the Vivado environment (most common)
 
-#### Localizar a instalação do Vivado:
+#### Locate the Vivado installation:
 ```bash
-# Procurar pelo arquivo de configuração
+# Search for the setup file
 find /opt -name "settings64.sh" 2>/dev/null | grep vivado
-# ou
+# or
 find /tools -name "settings64.sh" 2>/dev/null | grep vivado
 ```
 
-#### Executar o script de configuração:
+#### Run the setup script:
 ```bash
-# Substitua pelo caminho correto encontrado acima
+# Replace with the correct path found above
 source /opt/Xilinx/Vivado/2024.1/settings64.sh
-# ou
+# or
 source /tools/Xilinx/Vivado/2024.1/settings64.sh
 ```
 
-#### Depois executar seu script:
+#### Then run your script:
 ```bash
 bash xsim_run.sh
 ```
 
-### 2. Se você tem apenas o XSIM instalado
+### 2. If you have XSIM only installed
 
-#### Procurar por XSIM:
+#### Search for XSIM:
 ```bash
 find /opt -name "*xsim*" 2>/dev/null
 find /tools -name "*xsim*" 2>/dev/null
 ```
 
-#### Configurar o ambiente do XSIM:
+#### Set up the XSIM environment:
 ```bash
-source /caminho/para/xsim/settings64.sh
+source /path/to/xsim/settings64.sh
 ```
 
-### 3. Verificar se o Vivado está instalado
+### 3. Check if Vivado is installed
 
 ```bash
 which vivado
@@ -55,28 +56,28 @@ ls /opt/Xilinx/
 ls /tools/Xilinx/
 ```
 
-### 4. Caminhos comuns de instalação
+### 4. Common installation paths
 
 - `/opt/Xilinx/Vivado/2024.1/`
 - `/tools/Xilinx/Vivado/2024.1/`
 - `/usr/local/Xilinx/Vivado/2024.1/`
 
-### 5. Configurar permanentemente
+### 5. Set up permanently
 
-Para não precisar executar o `source` toda vez que abrir um novo terminal:
+So you don’t need to run `source` every time you open a new terminal:
 
 ```bash
-echo "source /caminho/para/vivado/settings64.sh" >> ~/.bashrc
+echo "source /path/to/vivado/settings64.sh" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-### 6. Se não tiver o Vivado instalado
+### 6. If Vivado is not installed
 
-Você precisa instalar o Xilinx Vivado que inclui o XSIM, ou apenas o XSIM standalone se disponível.
+You need to install Xilinx Vivado (which includes XSIM) or XSIM standalone if available.
 
-## Teste após configurar
+## Test after setup
 
-Execute os comandos abaixo para verificar se as ferramentas estão disponíveis:
+Run the commands below to check if the tools are available:
 
 ```bash
 which xvlog
@@ -84,66 +85,66 @@ which xelab
 which xsim
 ```
 
-Se os comandos forem encontrados, seu script funcionará!
+If the commands are found, your script will work!
 
-## Executando o script original
+## Running the original script
 
-### Método 1: Tornar o arquivo executável
+### Method 1: Make the file executable
 ```bash
-# Dar permissão de execução ao arquivo
+# Grant execute permission to the file
 chmod +x xsim_run.sh
 
-# Executar o script
+# Run the script
 ./xsim_run.sh
 ```
 
-### Método 2: Executar diretamente com bash
+### Method 2: Run directly with bash
 ```bash
 bash xsim_run.sh
 ```
 
-### Método 3: Executar com sh
+### Method 3: Run with sh
 ```bash
 sh xsim_run.sh
 ```
 
-## Pré-requisitos importantes
+## Important prerequisites
 
-1. **Xilinx Vivado/XSIM instalado** - O script usa ferramentas como `xvlog`, `xelab` e `xsim`
-2. **Variáveis de ambiente configuradas** - Execute o script de setup do Vivado
-3. **Estrutura de arquivos** - Certifique-se de que todos os arquivos referenciados existem:
+1. **Xilinx Vivado/XSIM installed** - The script uses tools like `xvlog`, `xelab`, and `xsim`
+2. **Environment variables set up** - Run Vivado setup script
+3. **File structure** - Make sure all referenced files exist:
    - `includes/riscv_pkg.sv`
    - `interfaces/mem_interface.sv`
    - `tb/env/mem_transaction.sv`
-   - E todos os outros arquivos listados no script
+   - And all other files listed in the script
 
-## O que o script faz
+## What the script does
 
-- **Limpeza**: Remove arquivos de simulação anteriores
-- **Análise**: Compila os arquivos SystemVerilog com UVM
-- **Elaboração**: Prepara o testbench para simulação
-- **Simulação**: Executa o teste `load_store_test`
+- **Cleanup**: Removes previous simulation files
+- **Analysis**: Compiles SystemVerilog files with UVM
+- **Elaboration**: Prepares testbench for simulation
+- **Simulation**: Runs `load_store_test`
 
-## Verificando permissões de arquivo
+## Checking file permissions
 
-### Ver permissões atuais:
+### View current permissions:
 ```bash
 ls -l xsim_run.sh
 ```
 
-### Resultado antes do chmod:
+### Result before chmod:
 ```
--rw-rw-r-- 1 ar ar 1234 data hora xsim_run.sh
-```
-
-### Resultado após chmod +x:
-```
--rwxrwxr-x 1 ar ar 1234 data hora xsim_run.sh
+-rw-rw-r-- 1 ar ar 1234 date time xsim_run.sh
 ```
 
-### Explicação das permissões:
-- `r` = read (leitura)
-- `w` = write (escrita)  
-- `x` = execute (execução)
+### Result after chmod +x:
+```
+-rwxrwxr-x 1 ar ar 1234 date time xsim_run.sh
+```
 
-O comando `chmod +x` adiciona a permissão de execução para o proprietário, grupo e outros usuários.
+### Permissions explanation:
+- `r` = read
+- `w` = write  
+- `x` = execute
+
+The `chmod +x` command adds execute permission for owner, group, and other users.
