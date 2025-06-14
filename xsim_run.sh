@@ -1,13 +1,29 @@
 #!/bin/bash
-# Ativa ambiente Vivado
-source /opt/Xilinx/Vivado/2024.1/settings64.sh
+# Compilação otimizada para XSIM 2024.1
 
-# Compilação
-xvlog -sv --incr --relax -f sim/rtl_sources.lst
-xvlog -sv --incr --relax -f sim/uvm_sources.lst top_tb.sv
+# Limpeza
+rm -rf xsim.dir *.jou *.log *.pb
+
+# Análise (Compile)
+xvlog -sv -L uvm \
+  includes/riscv_pkg.sv \
+  interfaces/mem_interface.sv \
+  tb/env/mem_transaction.sv \
+  tb/env/agents/mem_sequencer.sv \
+  tb/env/agents/mem_driver.sv \
+  tb/env/agents/mem_monitor.sv \
+  tb/env/agents/mem_agent.sv \
+  tb/env/sequences/base_sequence.sv \
+  tb/env/sequences/load_store_sequence.sv \
+  tb/env/mem_scoreboard.sv \
+  tb/env/mem_env.sv \
+  tb/tests/load_store_test.sv \
+  tb/top_tb.sv
 
 # Elaboração
-xelab -debug typical -top top_tb -L uvm -timescale 1ns/1ps
+xelab -L uvm -top top_tb -snapshot tb_snapshot
 
-# Simulação (substitua pelo teste desejado)
-xsim -R top_tb -testplusarg UVM_TESTNAME=load_store_test
+# Simulação
+xsim tb_snapshot -testplusarg UVM_TESTNAME=load_store_test \
+  -testplusarg UVM_VERBOSITY=UVM_MEDIUM \
+  -log simulation.log

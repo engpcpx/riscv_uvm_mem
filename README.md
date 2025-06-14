@@ -90,37 +90,38 @@ For full verification, you'll eventually want to add:
 # Simplified UVM Testbench Structure
 
 ```plaintext
-/riscv_uvm_mem
-│
-/riscv_uvm_verif
-│
-├── /rtl
-│ ├── riscv_definitions.sv    # RISC-V ISA definitions
-│ ├── instruction_fetch.sv    # IF stage
-│ ├── instruction_decode.sv   # ID stage
-│ ├── execution.sv            # EX stage
-│ ├── memory_access.sv        # MEM stage (DUT focus)
-│ ├── write_back.sv           # WB stage
-│ └── riscv.sv           # Top-level core
-│
-├── /tb
-│ ├── /env
-│ │ └── /agents/mem_agent
-│ │ ├── mem_transaction.sv  # Transaction item
-│ │ ├── mem_sequencer.sv    # Sequence control
-│ │ ├── mem_driver.sv       # Signal driver
-│ │ └── mem_monitor.sv      # Response monitor
-│ │
-│ ├── mem_interface.sv      # Physical interface
-│ └── /tests
-│ └── load_store_test.sv    # Main test case
-│
-├── /sim
-│ ├── rtl.scrlist   # RTL compile order
-│ ├── uvm.scrlist   # UVM compile order
-│ └── sim.scrlist   # Master compile list
-│
-└── riscv_tb_top.sv # Testbench top
+
+RISCV_UVM_MEM/
+├── includes/
+│   └── riscv_pkg.sv
+├── interfaces/
+│   └── mem_interface.sv
+├── rtl/
+│   ├── RISCV.sv
+│   ├── memory_access.sv
+│   ├── riscv_wrapper.sv
+│   └── [outros módulos RTL]
+├── tb/
+│   ├── env/
+│   │   ├── agents/
+│   │   │   ├── mem_agent.sv
+│   │   │   ├── mem_driver.sv
+│   │   │   ├── mem_monitor.sv
+│   │   │   └── mem_sequencer.sv
+│   │   ├── sequences/
+│   │   │   ├── base_sequence.sv
+│   │   │   └── load_store_sequence.sv
+│   │   ├── mem_env.sv
+│   │   ├── mem_scoreboard.sv
+│   │   └── mem_transaction.sv
+│   ├── tests/
+│   │   └── load_store_test.sv
+│   └── top_tb.sv
+├── scripts/
+│   └── compile_and_run.sh
+└── sim/
+    └── [arquivos de simulação]
+
 ```
 
 # Key Files with Purposes
