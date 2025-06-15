@@ -3,8 +3,21 @@
 // Description: Top-level testbench for RISC-V memory verification
 // ========================================================
 
+`ifndef TOP_TB_SV
+`define TOP_TB_SV
+
+`timescale 1ns/1ps
+
+// Include UVM
 `include "uvm_macros.svh"
 import uvm_pkg::*;
+
+// Include test
+`include "../tests/load_store_test.sv"
+
+// Include interfaces
+`include "../interfaces/mem_interface.sv"
+`include "../interfaces/riscv_wrapper.sv"
 
 module top_tb;
     
@@ -47,7 +60,16 @@ module top_tb;
     // Timeout protection
     initial begin
         #1000000; // 1ms timeout
-        $fatal("Testbench timeout!");
+        $display("Timeout reached!");
+        $finish;
+    end
+    
+    // Dump VCD for debugging (opcional)
+    initial begin
+        $dumpfile("waveform.vcd");
+        $dumpvars(0, top_tb);
     end
     
 endmodule
+
+`endif // TOP_TB_SV

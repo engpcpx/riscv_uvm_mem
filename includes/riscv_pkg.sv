@@ -57,6 +57,9 @@ package riscv_pkg;
         logic [4:0] base_reg,
         logic [11:0] offset
     );
+        if (rd >= REG_COUNT || base_reg >= REG_COUNT) begin
+            $error("Invalid register index in gen_lw_instr");
+        end
         lw_instr_t instr;
         instr.imm = offset;
         instr.rs1 = base_reg;
@@ -71,6 +74,9 @@ package riscv_pkg;
         logic [4:0] src_reg,
         logic [11:0] offset
     );
+        if (base_reg >= REG_COUNT || src_reg >= REG_COUNT) begin
+            $error("Invalid register index in gen_sw_instr");
+        end
         sw_instr_t instr;
         instr.imm_11_5 = offset[11:5];
         instr.rs2 = src_reg;

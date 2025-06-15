@@ -1,150 +1,274 @@
+RISC-V UVM Project - Solution Guide
+Problem Summary
 
-# XSIM Configuration Guide - Troubleshooting
+Your simulation script is failing because:
 
-## Problem: Commands not found
-```
-xsim_run.sh: line 8: xvlog: command not found
-xsim_run.sh: line 24: xelab: command not found
-xsim_run.sh: line 27: xsim: command not found
-```
+    Vivado not found: The path /opt/Xilinx/Vivado/2024.1/settings64.sh doesn't exist
+    Tools unavailable: xvlog, xelab, and xsim commands are not in your PATH
+    Environment not configured: Vivado environment variables are not set
 
-The error indicates that the Xilinx tools (xvlog, xelab, xsim) are not in the system PATH. You need to set up the Vivado/XSIM environment first.
+Solution Steps
+Step 1: Find Your Vivado Installation
 
-## Solutions
+First, let's locate where Vivado is actually installed on your system:
 
-### 1. Set up the Vivado environment (most common)
+bash
 
-#### Locate the Vivado installation:
-```bash
-# Search for the setup file
-find /opt -name "settings64.sh" 2>/dev/null | grep vivado
-# or
-find /tools -name "settings64.sh" 2>/dev/null | grep vivado
-```
+# Search for Vivado installations
+find /opt /usr/local /home -name "settings64.sh" -path "*/Vivado/*" 2>/dev/null
 
-#### Run the setup script:
-```bash
-# Replace with the correct path found above
-source /opt/Xilinx/Vivado/2024.1/settings64.sh
-# or
-source /tools/Xilinx/Vivado/2024.1/settings64.sh
-```
+# Alternative: search for Vivado directories
+find /opt /usr/local /home -type d -name "Vivado" 2>/dev/null
 
-#### Then run your script:
-```bash
-bash xsim_run.sh
-```
+# Check common locations
+ls -la /opt/xilinx/ 2>/dev/null
+ls -la /opt/Xilinx/ 2>/dev/null
+ls -la ~/Xilinx/ 2>/dev/null
 
-### 2. If you have XSIM only installed
+Step 2: Setup Vivado Environment
 
-#### Search for XSIM:
-```bash
-find /opt -name "*xsim*" 2>/dev/null
-find /tools -name "*xsim*" 2>/dev/null
-```
+Once you find the correct path, source the settings file:
 
-#### Set up the XSIM environment:
-```bash
-source /path/to/xsim/settings64.sh
-```
+bash
 
-### 3. Check if Vivado is installed
+# Replace with your actual path
+source /path/to/your/vivado/settings64.sh
 
-```bash
-which vivado
-ls /opt/Xilinx/
-ls /tools/Xilinx/
-```
-
-### 4. Common installation paths
-
-- `/opt/Xilinx/Vivado/2024.1/`
-- `/tools/Xilinx/Vivado/2024.1/`
-- `/usr/local/Xilinx/Vivado/2024.1/`
-
-### 5. Set up permanently
-
-So you don’t need to run `source` every time you open a new terminal:
-
-```bash
-echo "source /path/to/vivado/settings64.sh" >> ~/.bashrc
-source ~/.bashrc
-```
-
-### 6. If Vivado is not installed
-
-You need to install Xilinx Vivado (which includes XSIM) or XSIM standalone if available.
-
-## Test after setup
-
-Run the commands below to check if the tools are available:
-
-```bash
+# Verify the setup
 which xvlog
-which xelab  
-which xsim
-```
+xvlog --version
 
-If the commands are found, your script will work!
+Step 3: Use the Improved Scripts
 
-## Running the original script
+I've created improved scripts that will:
 
-### Method 1: Make the file executable
-```bash
-# Grant execute permission to the file
-chmod +x xsim_run.sh
+    Automatically detect your Vivado installation
+    Handle missing files gracefully
+    Provide better error messages
 
-# Run the script
-./xsim_run.sh
-```
+Option A: Use the Diagnostics Script
 
-### Method 2: Run directly with bash
-```bash
-bash xsim_run.sh
-```
+bash
 
-### Method 3: Run with sh
-```bash
-sh xsim_run.sh
-```
+# Make the script executable
+chmod +x project_diagnostics.sh
 
-## Important prerequisites
+# Run diagnostics
+./project_diagnostics.sh
 
-1. **Xilinx Vivado/XSIM installed** - The script uses tools like `xvlog`, `xelab`, and `xsim`
-2. **Environment variables set up** - Run Vivado setup script
-3. **File structure** - Make sure all referenced files exist:
-   - `includes/riscv_pkg.sv`
-   - `interfaces/mem_interface.sv`
-   - `tb/env/mem_transaction.sv`
-   - And all other files listed in the script
+Option B: Use the Improved Simulation Script
 
-## What the script does
+bash
 
-- **Cleanup**: Removes previous simulation files
-- **Analysis**: Compiles SystemVerilog files with UVM
-- **Elaboration**: Prepares testbench for simulation
-- **Simulation**: Runs `load_store_test`
+# Make the script executable
+chmod +x improved_xsim_run.sh
 
-## Checking file permissions
+# Run simulation
+./improved_xsim_run.sh
 
-### View current permissions:
-```bash
-ls -l xsim_run.sh
-```
+Step 4: Manual Vivado Setup (if auto-detection fails)
 
-### Result before chmod:
-```
--rw-rw-r-- 1 ar ar 1234 date time xsim_run.sh
-```
+If the scripts can't find Vivado automatically:
 
-### Result after chmod +x:
-```
--rwxrwxr-x 1 ar ar 1234 date time xsim_run.sh
-```
+    Locate Vivado manually:
 
-### Permissions explanation:
-- `r` = read
-- `w` = write  
-- `x` = execute
+    bash
 
-The `chmod +x` command adds execute permission for owner, group, and other users.
+    sudo find / -name "settings64.sh" -path "*/Vivado/*" 2>/dev/null
+
+    Create a permanent setup:
+
+    bash
+
+    # Add to your ~/.bashrc
+    echo "source /path/to/vivado/settings64.sh" >> ~/.bashrc
+
+    # Reload your shell
+    source ~/.bashrc
+
+    Test the setup:
+
+    bash
+
+    xvlog --version
+
+Common Vivado Installation Paths
+
+Check these locations for your Vivado installation:
+
+    /opt/Xilinx/Vivado/2024.1/settings64.sh
+    /opt/xilinx/Vivado/2024.1/settings64.sh
+    /tools/Xilinx/Vivado/2024.1/settings64.sh
+    /usr/local/xilinx/Vivado/2024.1/settings64.sh
+    ~/Xilinx/Vivado/2024.1/settings64.sh
+    /home/xilinx/Vivado/2024.1/settings64.sh
+
+Replace 2024.1 with your actual Vivado version (could be 2023.2, 2023.1, etc.)
+Project Structure Check
+
+Ensure your project has this structure:
+
+riscv_uvm_mem/
+├── includes/
+│   ├── riscv_pkg.sv
+│   └── riscv_definitions.sv (optional)
+├── interfaces/
+│   └── mem_interface.sv
+├── rtl/
+│   ├── RISCV.sv
+│   ├── instruction_fetch.sv
+│   ├── instruction_decode.sv
+│   ├── execution.sv
+│   ├── memory_access.sv
+│   └── hazard_control.sv
+├── tb/
+│   ├── top_tb.sv
+│   ├── env/
+│   └── tests/
+└── scripts/
+    ├── xsim_run.sh
+    └── compile_debug.sh
+
+Troubleshooting Tips
+If Vivado is not installed:
+
+    Download from: https://www.xilinx.com/support/download.html
+    Install following AMD/Xilinx instructions
+    Make sure to install the full Vivado suite, not just Vitis
+
+If you get permission errors:
+
+bash
+
+# Check file permissions
+ls -la /opt/Xilinx/Vivado/
+ls -la /opt/xilinx/Vivado/
+
+# You might need to be added to the xilinx group
+sudo usermod -a -G xilinx $USER
+
+If compilation fails:
+
+    Check SystemVerilog syntax in your files
+    Verify module names match file names
+    Ensure proper dependency order in compilation
+    Check for missing include statements
+
+Quick Commands Reference
+
+bash
+
+# Check if Vivado is working
+which xvlog && echo "Vivado OK" || echo "Vivado not found"
+
+# Clean compilation files
+rm -rf xsim.dir work *.log *.jou *.str *.wdb
+
+# Basic compilation test
+xvlog --sv --work work ./includes/riscv_pkg.sv
+
+# Run simulation in GUI mode
+xsim work.tb_snapshot -gui
+
+# Run simulation in batch mode
+xsim work.tb_snapshot -runall
+
+## Next Steps
+
+    Run the diagnostics script to identify specific issues
+    Use the improved simulation script for better error handling
+    Check the project structure to ensure all files are present
+    Set up permanent Vivado environment in your ~/.bashrc
+
+If you continue to have issues, please share:
+
+    The output of the diagnostics script
+    Your actual Vivado installation path
+    Any specific error messages you encounter
+
+
+# 1. riscv_pkg.sv
+
+    Propósito:
+    Este é um arquivo SystemVerilog que define um pacote (package) contendo estruturas, parâmetros e funções utilitárias para um núcleo RISC-V. Ele serve como uma biblioteca centralizada para compartilhar definições comuns em todo o projeto.
+
+    Conteúdo principal:
+
+        Parâmetros globais:
+
+            XLEN: Tamanho da arquitetura (32 bits).
+
+            REG_COUNT: Número de registradores (32).
+
+        Estruturas de dados:
+
+            mem_transaction_t: Define transações de memória (load/store) com campos como endereço, dados e tamanho.
+
+            Tipos de instruções RISC-V (i_type_instr_t, s_type_instr_t, lw_instr_t, sw_instr_t).
+
+        Códigos de operação:
+
+            Opcodes (e.g., LOAD_OPCODE, STORE_OPCODE) e funct3 (e.g., LW_FUNCT3).
+
+        Funções utilitárias:
+
+            is_mem_aligned: Verifica se um endereço está alinhado.
+
+            gen_lw_instr/gen_sw_instr: Geram instruções de load/store pré-formatadas.
+
+    Uso:
+    Esse pacote é incluído em outros módulos SystemVerilog (como TB, RTL, ou agentes UVM) para garantir consistência nas definições de instruções, transações de memória e parâmetros.
+
+# 2. xsim_run.sh
+
+    Propósito:
+    É um script Bash que automatiza a simulação do projeto RISC-V usando o simulador XSIM (parte do Vivado). Ele realiza:
+
+        Configuração do ambiente Vivado.
+
+        Verificação da estrutura de arquivos do projeto.
+
+        Compilação dos arquivos SystemVerilog.
+
+        Execução da simulação e limpeza de artefatos anteriores.
+
+    Etapas principais:
+
+        Configuração do Vivado:
+
+            Carrega o ambiente do Vivado 2024.1.
+
+        Verificação de arquivos:
+
+            Checa se todos os arquivos necessários estão presentes (e.g., RTL, TB, agentes UVM).
+
+            Lista inclui interfaces, pacotes, módulos RISC-V, testes UVM e componentes do ambiente de verificação.
+
+        Compilação e simulação:
+
+            Usa xvlog para compilar arquivos SystemVerilog.
+
+            Usa xelab para elaborar o TB (top_tb).
+
+            Executa a simulação com xsim.
+
+    Uso:
+
+        Garante que o projeto esteja completo antes da simulação.
+
+        Automatiza o fluxo de simulação, evitando erros manuais.
+
+        Típico para projetos de verificação UVM com RISC-V.
+
+## Relação entre os scripts
+
+    O riscv_pkg.sv fornece as definições usadas pelos arquivos listados no xsim_run.sh (e.g., transações de memória para o mem_agent.sv, opcodes para o instruction_decode.sv).
+
+    O xsim_run.sh depende do riscv_pkg.sv (listado em FILES_TO_CHECK) para compilar corretamente o projeto.
+
+##Em resumo:
+
+    riscv_pkg.sv: Biblioteca de definições RISC-V.
+
+    xsim_run.sh: Script de automação para simulação UVM/XSIM.
+

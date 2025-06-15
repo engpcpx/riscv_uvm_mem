@@ -1,29 +1,161 @@
 #!/bin/bash
-# Compilação otimizada para XSIM 2024.1
 
-# Limpeza
-rm -rf xsim.dir *.jou *.log *.pb
+echo "=== RISC-V UVM Testbench Simulation with XSIM ==="
+echo "=== Vivado 2024.1 - UVM 1.2 ==="
 
-# Análise (Compile)
-xvlog -sv -L uvm \
-  includes/riscv_pkg.sv \
-  interfaces/mem_interface.sv \
-  tb/env/mem_transaction.sv \
-  tb/env/agents/mem_sequencer.sv \
-  tb/env/agents/mem_driver.sv \
-  tb/env/agents/mem_monitor.sv \
-  tb/env/agents/mem_agent.sv \
-  tb/env/sequences/base_sequence.sv \
-  tb/env/sequences/load_store_sequence.sv \
-  tb/env/mem_scoreboard.sv \
-  tb/env/mem_env.sv \
-  tb/tests/load_store_test.sv \
-  tb/top_tb.sv
+# --------------------------------------------------
+# Environment Setup
+# --------------------------------------------------
+echo "--------------------------------------------------"
+echo "Environment Setup"
+echo "--------------------------------------------------"
+source /opt/xilinx/Vivado/2024.1/settings64.sh
+vivado_version=$(vivado -version | head -n 1)
+echo "Using Vivado version: $vivado_version"
 
-# Elaboração
-xelab -L uvm -top top_tb -snapshot tb_snapshot
+# --------------------------------------------------
+# Directory Setup
+# --------------------------------------------------
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR" || exit 1
 
-# Simulação
-xsim tb_snapshot -testplusarg UVM_TESTNAME=load_store_test \
-  -testplusarg UVM_VERBOSITY=UVM_MEDIUM \
-  -log simulation.log
+# --------------------------------------------------
+# File List
+# --------------------------------------------------
+declare -a RTL_FILES=(
+    "./rtl/riscv_definitions.sv"
+    "./rtl/RISCV.sv"
+    "./rtl/instruction_fetch.sv"
+    "./rtl/instruction_decode.sv"
+    "./rtl/execution.sv"
+    "./rtl/memory_access.sv"
+    "./rtl/hazard_control.sv"
+)
+
+declare -a TB_FILES=(
+    # "./interfaces/mem_interface.sv"
+    # "./interfaces/riscv_warapper.sv"
+    "./tb/top_tb.sv"
+    "./tb/env/sequences/mem_transaction.sv"
+    "./tb/env/agents/mem_driver.sv"
+    "./tb/env/agents/mem_monitor.sv"
+    "./tb/env/agents/mem_sequencer.sv"
+    "./tb/env/agents/mem_agent.sv"
+    "./tb/env/mem_scoreboard.sv"
+    "./tb/env/mem.env.sv"  
+)
+
+declare -a INTERFACES_FILES=(
+    "./interfaces/mem_interface.sv"
+    "./interfaces/riscv_wrapper.sv"
+)
+
+declare -a TESTS_FILES=(
+    "./tests/load_store_test.sv"
+)
+
+declare -a INCLUDES_FILES=(
+    "./includes/riscv_pkg.sv"
+)
+
+# --------------------------------------------------
+# File Verification
+# --------------------------------------------------
+echo ""e
+cho "--------------------------------------------------"
+echo "File Verification"
+echo "--------------------------------------------------"
+echo "Checking Structure Files.."
+MISSING_FILES=0
+for file in "${RTL_FILES[@]}" "${TB_FILES[@]}" "${INTERFACES_FILES[@]}" "${TESTS_FILES[@]}" "${INCLUDES_FILES[@]}"; do
+    if [ ! -f "$file" ]; then
+        echo "✗ Missing: $file"
+        MISSING_FILES=$((MISSING_FILES + 1))
+    else
+        echo "✓ Found: $file"
+    fi
+done
+
+[ $MISSING_FILES -gt 0 ] && { echo "❌ Error: $MISSING_FILES files missing!"; exit 1; }
+
+# --------------------------------------------------
+# Clean Previous Runs
+# --------------------------------------------------
+echo ""
+echo "--------------------------------------------------"
+echo "Clean Previous Runs"
+echo "--------------------------------------------------"
+echo "Cleaning previous simulation..."
+rm -rf xsim.dir .Xil *.log *.jou *.pb *.wdb *.str *.vcd
+find . -name "*.bak" -delete
+echo "✓ Clean complete"
+
+# --------------------------------------------------
+# Compilation
+# --------------------------------------------------
+echo ""
+echo "--------------------------------------------------"
+echo "Compilation"
+echo "--------------------------------------------------"
+echo "Compiling files..."
+compile_files() {
+    local file_type=$1
+    shift
+    local files=("$@")
+    
+    echo "Compiling $file_type files..."
+    for file in "${files[@]}"; do
+        echo ""
+        echo "  Processing: $file"
+        xvlog -sv -L uvm "$file" || { echo "❌ Failed to compile $file"; exit 1; }
+        echo "  ✓ Successfully processed: $file"
+    done
+}
+
+compile_files "RTL" "${RTL_FILES[@]}"
+compile_files "Testbench" "${TB_FILES[@]}"
+
+# --------------------------------------------------
+# Elaboration
+# --------------------------------------------------
+echo ""
+echo "--------------------------------------------------"
+echo "Elaboration"
+echo "--------------------------------------------------"
+echo "Elaborating design..."
+xelab -debug typical -L uvm top_tb -timescale 1ns/1ps || { echo "❌ Elaboration failed!"; exit 1; }
+echo "✓ Elaboration completed successfully"
+
+# --------------------------------------------------
+# Simulation
+# --------------------------------------------------
+echo ""
+echo "--------------------------------------------------"
+echo "Simulation"
+echo "--------------------------------------------------"
+SIM_MODE=${1:-"-batch"}
+WAVE_DB="riscv_sim_waves.wdb"
+
+case "$SIM_MODE" in
+    "--gui")
+        echo "Starting GUI simulation..."
+        xsim top_tb -gui -wdb $WAVE_DB &
+        ;;
+    *)
+        echo "Starting batch simulation..."
+        xsim top_tb -runall -wdb $WAVE_DB
+        ;;
+esac
+
+[ $? -ne 0 ] && { echo "❌ Simulation failed!"; exit 1; }
+
+# --------------------------------------------------
+# Completion
+# --------------------------------------------------
+echo ""
+echo "--------------------------------------------------"
+echo "Completion"
+echo "--------------------------------------------------"
+echo "✓ Simulation completed successfully"
+echo "Waveform database: $WAVE_DB"
+exit 0

@@ -1,4 +1,13 @@
-// mem_scoreboard.sv 
+// tb/env/mem_scoreboard.sv
+`ifndef MEM_SCOREBOARD_SV
+`define MEM_SCOREBOARD_SV
+
+`include "uvm_macros.svh"
+import uvm_pkg::*;
+
+// Inclua a definição da transação
+`include "./sequences/mem_transaction.sv"
+
 class mem_scoreboard extends uvm_scoreboard;
   `uvm_component_utils(mem_scoreboard)
   
@@ -19,6 +28,7 @@ class mem_scoreboard extends uvm_scoreboard;
   endfunction
   
   function void connect_phase(uvm_phase phase);
+    super.connect_phase(phase);
     item_collected_export.connect(item_fifo.analysis_export);
   endfunction
   
@@ -52,3 +62,5 @@ class mem_scoreboard extends uvm_scoreboard;
     end
   endtask
 endclass
+
+`endif // MEM_SCOREBOARD_SV

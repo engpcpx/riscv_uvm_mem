@@ -1,0 +1,16 @@
+Vivado Simulator v2024.1
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: /opt/xilinx/Vivado/2024.1/bin/unwrapped/lnx64.o/xelab -debug typical -L uvm top_tb -timescale 1ns/1ps 
+Multi-threading is on. Using 10 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+ERROR: [VRFC 10-2939] 'aluOpType' is an unknown type [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/rtl/RISCV.sv:70]
+ERROR: [VRFC 10-2063] Module <controller> not found while processing module instance <id_controller> [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/rtl/instruction_decode.sv:72]
+ERROR: [VRFC 10-2063] Module <register_file> not found while processing module instance <id_reg_file> [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/rtl/instruction_decode.sv:90]
+ERROR: [VRFC 10-2063] Module <sign_extend> not found while processing module instance <imm_extend> [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/rtl/instruction_decode.sv:103]
+ERROR: [VRFC 10-2063] Module <mux2to1> not found while processing module instance <select_SrcA> [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/rtl/execution.sv:71]
+ERROR: [VRFC 10-2063] Module <alu> not found while processing module instance <alu_instance> [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/rtl/execution.sv:87]
+ERROR: [VRFC 10-2063] Module <branch_unit> not found while processing module instance <branch_unit_instance> [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/rtl/execution.sv:95]
+ERROR: [VRFC 10-2063] Module <WriteBack> not found while processing module instance <wb_stage> [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/rtl/RISCV.sv:194]
+ERROR: [XSIM 43-3322] Static elaboration of top level Verilog design unit(s) in library work failed.

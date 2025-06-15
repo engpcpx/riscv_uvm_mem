@@ -3,6 +3,10 @@
 // Description: Corrected UVM driver for memory operations
 // ========================================================
 
+`include "uvm_macros.svh"
+import uvm_pkg::*;
+`include "../sequences/mem_transaction.sv"  // Adjusted path to go up one directory
+
 class mem_driver extends uvm_driver #(mem_transaction);
     `uvm_component_utils(mem_driver)
     
@@ -14,8 +18,9 @@ class mem_driver extends uvm_driver #(mem_transaction);
     
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
-        if (!uvm_config_db#(virtual mem_interface)::get(this, "", "mem_if", vif))
+        if (!uvm_config_db#(virtual mem_interface)::get(this, "", "mem_if", vif)) begin
             `uvm_fatal("DRIVER", "Virtual interface not found")
+        end
     endfunction
     
     task run_phase(uvm_phase phase);

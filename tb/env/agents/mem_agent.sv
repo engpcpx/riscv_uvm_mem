@@ -1,27 +1,45 @@
-// mem_agent.sv 
+// tb/env/agents/mem_agent.sv
+`ifndef MEM_AGENT_SV
+`define MEM_AGENT_SV
+
+`include "uvm_macros.svh"
+import uvm_pkg::*;
+
+// Incluir transaction primeiro
+`include "../sequences/mem_transaction.sv"
+
+// Depois incluir componentes
+`include "mem_driver.sv"
+`include "mem_sequencer.sv"
+`include "mem_monitor.sv"
+
 class mem_agent extends uvm_agent;
-  `uvm_component_utils(mem_agent)
-  
-  mem_driver driver;
-  mem_sequencer sequencer;
-  mem_monitor monitor;
-  
-  function new(string name, uvm_component parent);
-    super.new(name, parent);
-  endfunction
-  
-  function void build_phase(uvm_phase phase);
-    super.build_phase(phase);
-    monitor = mem_monitor::type_id::create("monitor", this);
-    if(get_is_active() == UVM_ACTIVE) begin
-      driver = mem_driver::type_id::create("driver", this);
-      sequencer = mem_sequencer::type_id::create("sequencer", this);
-    end
-  endfunction
-  
-  function void connect_phase(uvm_phase phase);
-    if(get_is_active() == UVM_ACTIVE) begin
-      driver.seq_item_port.connect(sequencer.seq_item_export);
-    end
-  endfunction
+    `uvm_component_utils(mem_agent)
+    
+    mem_driver    driver;
+    mem_sequencer sequencer;
+    mem_monitor   monitor;
+    
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+    endfunction
+    
+    function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+        monitor = mem_monitor::type_id::create("monitor", this);
+        
+        if(get_is_active() == UVM_ACTIVE) begin
+            driver = mem_driver::type_id::create("driver", this);
+            sequencer = mem_sequencer::type_id::create("sequencer", this);
+        end
+    endfunction
+    
+    function void connect_phase(uvm_phase phase);
+        super.connect_phase(phase);
+        if(get_is_active() == UVM_ACTIVE) begin
+            driver.seq_item_port.connect(sequencer.seq_item_export);
+        end
+    endfunction
 endclass
+
+`endif // MEM_AGENT_SV

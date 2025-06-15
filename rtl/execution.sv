@@ -1,11 +1,26 @@
-import riscv_definitions::*; // Import package into $unit space
 /**
  * Module: execution
  * Description:
  *     Implements the execution stage of a RISC-V pipeline. This stage handles ALU operations,
  *     jump and branch decision logic, and forwards data and control signals to the memory stage.
- *
  **/
+
+// Local type definitions (if package isn't available)
+`ifndef RISCV_DEFINITIONS
+`define RISCV_DEFINITIONS
+
+parameter DATA_WIDTH = 32;
+parameter REG_ADDR_WIDTH = 5;
+
+typedef logic [DATA_WIDTH-1:0] dataBus_t;
+typedef enum logic [3:0] {
+    ALU_ADD, ALU_SUB, ALU_SLL, ALU_SLT,
+    ALU_SLTU, ALU_XOR, ALU_SRL, ALU_SRA,
+    ALU_OR, ALU_AND
+} aluOp_t;
+
+`endif
+
 module execution (
     input  logic                 clk,                   // Clock signal
     input  logic                 clk_en,                // Clock Enable
@@ -19,13 +34,13 @@ module execution (
     input logic                  i_id_mem_wr,           // Memory write enable
     input logic                  i_id_result_src,       // Write-back result selector (PC+4, ALU result, or memory).
     input logic                  i_id_branch,           // Branch instruction flag
-    input aluOpType              i_id_alu_op,           // ALU operation control
+    input aluOp_t                i_id_alu_op,           // ALU operation control
     input logic                  i_id_jump,             // Jump instruction flag
     input dataBus_t              i_id_pc,               // Program Counter value at ID stage
     input dataBus_t              i_id_reg_read_data1,   // RS1 value input
     input dataBus_t              i_id_reg_read_data2,   // RS2 value input
     input dataBus_t              i_id_imm,              // Sign-extended immediate value
-    input logic [REG_ADDR-1:0]   i_id_reg_destination,  // Register destination address
+    input logic [REG_ADDR_WIDTH-1:0] i_id_reg_destination,  // Register destination address
     input logic [2:0]            i_id_funct3,           // funct3 field from instruction
     input logic [6:0]            i_id_funct7,           // funct7 field from instruction
 
@@ -34,7 +49,7 @@ module execution (
     output logic                  o_ex_mem_rd,          // Forwarded memory read enable.
     output logic                  o_ex_mem_wr,          // Forwarded memory write enable.
     output logic                  o_ex_result_src,      // Forwarded write-back result selector.
-    output logic [REG_ADDR-1:0]   o_ex_reg_destination, // Forwarded Register destination address
+    output logic [REG_ADDR_WIDTH-1:0] o_ex_reg_destination, // Forwarded Register destination address
     output logic [2:0]            o_ex_funct3,          // Forwarded funct3.
     output logic [6:0]            o_ex_funct7,          // Forwarded funct7.
     output logic                  o_ex_flush,           // Pipeline flush signal (for control transfer).
@@ -42,11 +57,9 @@ module execution (
     output dataBus_t              o_ex_pc_plus_4,       // PC + 4 value.
     output dataBus_t              o_ex_alu_result,      // ALU result.
     output dataBus_t              o_ex_data2            // RS2 value output
-    
 );
 
-
-   // Internal signals
+    // Internal signals
     logic     flush;
     dataBus_t jump_addr;
     dataBus_t pc_plus_4;
@@ -120,6 +133,6 @@ module execution (
             o_ex_alu_result      <= alu_result;
             o_ex_data2           <= i_id_reg_read_data2;
         end
-    end : proc_id_ex
+    end
 
 endmodule

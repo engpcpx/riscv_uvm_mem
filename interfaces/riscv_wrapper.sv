@@ -3,6 +3,9 @@
 // Description: Wrapper to connect RISCV DUT with UVM interface
 // ========================================================
 
+`ifndef RISCV_WRAPPER_SV
+`define RISCV_WRAPPER_SV
+
 module riscv_wrapper(
     input logic clk,
     input logic rst_n,
@@ -31,15 +34,23 @@ module riscv_wrapper(
     );
 
     // Simple memory model for testing
-    logic [31:0] test_memory [1024];
+    logic [31:0] test_memory [0:1023]; // Índice explícito
     
-    always_ff @(posedge clk) begin
-        if (mem_if.mem_write) begin
-            test_memory[mem_if.addr[11:2]] <= mem_if.data_in;
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            // Reset logic if needed
+            mem_if.data_out <= '0;
         end
-        if (mem_if.mem_read) begin
-            mem_if.data_out <= test_memory[mem_if.addr[11:2]];
+        else begin
+            if (mem_if.mem_write) begin
+                test_memory[mem_if.addr[11:2]] <= mem_if.data_in;
+            end
+            if (mem_if.mem_read) begin
+                mem_if.data_out <= test_memory[mem_if.addr[11:2]];
+            end
         end
     end
 
 endmodule
+
+`endif // RISCV_WRAPPER_SV
