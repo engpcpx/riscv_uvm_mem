@@ -13,28 +13,28 @@
 import uvm_pkg::*;
 
 // Include interfaces first
-`include "../interfaces/mem_interface.sv"
-`include "../interfaces/riscv_wrapper.sv"
+`include "interfaces/mem_interface.sv"
+`include "interfaces/riscv_wrapper.sv"
 
-// Include transaction from sequences directory
-`include "../tb/sequences/mem_transaction.sv"
+// Include transaction first (needed by other components)
+`include "tb/env/sequences/mem_transaction.sv"
 
-// Include agent components
-`include "../tb/env/agents/mem_driver.sv"
-`include "../tb/env/agents/mem_monitor.sv"
-`include "../tb/env/agents/mem_sequencer.sv"
-`include "../tb/env/agents/mem_agent.sv"
+// Include agent components that exist in your project
+`include "tb/env/agents/mem_driver.sv"
+`include "tb/env/agents/mem_monitor.sv"
+`include "tb/env/agents/mem_sequencer.sv"
+`include "tb/env/agents/mem_agent.sv"
 
-// Include environment
-`include "../tb/env/mem_scoreboard.sv"
-`include "../tb/env/mem.env.sv"
+// Include sequences that exist
+`include "tb/env/sequences/base_sequence.sv"
+`include "tb/env/sequences/load_store_sequence.sv"
 
-// Include sequences
-`include "../tb/sequences/base_sequence.sv"
-`include "../tb/sequences/load_store_sequence.sv"
+// Include environment components
+`include "tb/env/mem_scoreboard.sv"
+`include "../env/mem_env.sv"
 
-// Include test last
-`include "../tb/tests/load_store_test.sv"
+// Include tests
+`include "tests/load_store_test.sv"
 
 module top_tb;
     

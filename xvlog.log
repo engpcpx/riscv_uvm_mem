@@ -1,9 +1,7 @@
 INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/paulocezar/Documentos/UVM/riscv_uvm_mem/tb/top_tb.sv" into library work
 INFO: [VRFC 10-311] analyzing module riscv_wrapper
-ERROR: [VRFC 10-3195] cannot open include file '../tb/sequences/mem_transaction.sv' [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/tb/top_tb.sv:20]
-ERROR: [VRFC 10-2989] 'mem_agent' is not declared [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/tb/../tb/env/mem.env.sv:24]
-ERROR: [VRFC 10-3195] cannot open include file '../tb/sequences/base_sequence.sv' [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/tb/top_tb.sv:33]
-ERROR: [VRFC 10-3195] cannot open include file '../tb/sequences/load_store_sequence.sv' [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/tb/top_tb.sv:34]
-ERROR: [VRFC 10-3195] cannot open include file '../tb/tests/load_store_test.sv' [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/tb/top_tb.sv:37]
+ERROR: [VRFC 10-3195] cannot open include file '../env/mem_env.sv' [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/tb/top_tb.sv:34]
+ERROR: [VRFC 10-3195] cannot open include file '../env/mem.env.sv' [tests/load_store_test.sv:15]
+ERROR: [VRFC 10-2989] 'mem_env' is not declared [tests/load_store_test.sv:29]
 INFO: [VRFC 10-311] analyzing module top_tb
 ERROR: [VRFC 10-8530] module 'top_tb' is ignored due to previous errors [/home/paulocezar/Documentos/UVM/riscv_uvm_mem/tb/top_tb.sv:39]

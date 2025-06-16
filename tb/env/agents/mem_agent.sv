@@ -1,86 +1,70 @@
 // ========================================================
-// File: top_tb.sv
-// Description: Top-level testbench for RISC-V memory verification
+// File: mem_agent.sv
+// Description: Complete UVM agent implementation for memory interface
 // ========================================================
 
-`ifndef TOP_TB_SV
-`define TOP_TB_SV
+`ifndef MEM_AGENT_SV
+`define MEM_AGENT_SV
 
-`timescale 1ns/1ps
-
-// Include UVM
 `include "uvm_macros.svh"
 import uvm_pkg::*;
 
-// Include interfaces first
-`include "../../interfaces/mem_interface.sv"
-`include "../../interfaces/riscv_wrapper.sv"
+// Include transaction definition first
+`include "../sequencer/mem_transaction.sv"
 
-// Include transaction (from sequences directory)
-`include "../../tb/sequences/mem_transaction.sv"
 
-// Include agent components (from agents directory)
-`include "../../tb/env/agents/mem_driver.sv"
-`include "../../tb/env/agents/mem_monitor.sv"
-`include "../../tb/env/agents/mem_sequencer.sv"
+// Include subcomponent definitions with correct paths
+`include "mem_driver.sv"
+`include "mem_monitor.sv"
+`include "mem_sequencer.sv"
 
-// Include agent (from agents directory)
-`include "../../tb/env/agents/mem_agent.sv"
-
-// Include test (from tests directory)
-`include "../../tb/tests/load_store_test.sv"
-
-module top_tb;
+class mem_agent extends uvm_agent;
+    `uvm_component_utils(mem_agent)
     
-    // Clock and reset
-    logic clk = 0;
-    logic rst_n = 0;
+    // Component handles
+    mem_driver    driver;     // Driver instance
+    mem_sequencer sequencer;  // Sequencer instance
+    mem_monitor   monitor;    // Monitor instance
     
-    // Interface instance  
-    mem_interface mem_if(clk);
+    // Analysis port for monitoring transactions
+    uvm_analysis_port #(mem_transaction) analysis_port;
     
-    // DUT wrapper instance
-    riscv_wrapper dut (
-        .clk(clk),
-        .rst_n(rst_n),
-        .mem_if(mem_if.dut_mp)
-    );
+    // Constructor
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+        analysis_port = new("analysis_port", this);
+    endfunction
     
-    // Clock generation
-    initial begin
-        clk = 0;
-        forever #5 clk = ~clk; // 100MHz clock
-    end
-    
-    // Reset generation
-    initial begin
-        rst_n = 0;
-        #100;
-        rst_n = 1;
-    end
-    
-    // UVM configuration and test execution
-    initial begin
-        // Set interface in config_db
-        uvm_config_db#(virtual mem_interface)::set(null, "*", "vif", mem_if);
+    // Build Phase - creates subcomponents
+    function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
         
-        // Run the test
-        run_test("load_store_test");
-    end
+        // Create monitor (always present)
+        monitor = mem_monitor::type_id::create("monitor", this);
+        
+        // Only create active components if agent is active
+        if(get_is_active() == UVM_ACTIVE) begin
+            driver = mem_driver::type_id::create("driver", this);
+            sequencer = mem_sequencer::type_id::create("sequencer", this);
+        end
+    endfunction
     
-    // Timeout protection
-    initial begin
-        #1000000; // 1ms timeout
-        $display("Timeout reached!");
-        $finish;
-    end
+    // Connect Phase - connects components
+    function void connect_phase(uvm_phase phase);
+        super.connect_phase(phase);
+        
+        // Connect monitor to agent's analysis port
+        monitor.analysis_port.connect(this.analysis_port);
+        
+        // Connect driver to sequencer if active
+        if(get_is_active() == UVM_ACTIVE) begin
+            driver.seq_item_port.connect(sequencer.seq_item_export);
+        end
+    endfunction
     
-    // Dump VCD for debugging (optional)
-    initial begin
-        $dumpfile("waveform.vcd");
-        $dumpvars(0, top_tb);
-    end
+    // Additional agent functionality can be added here
+    // (run_phase, report_phase, etc. as needed)
     
-endmodule
+endclass
 
-`endif // TOP_TB_SV
+`endif // MEM_AGENT_SV

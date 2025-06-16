@@ -47,7 +47,7 @@ declare -a TB_FILES=(
     "./tb/env/agents/mem_sequencer.sv"
     "./tb/env/agents/mem_agent.sv"
     "./tb/env/mem_scoreboard.sv"
-    "./tb/env/mem.env.sv"  
+    "./tb/env/mem_env.sv"  
 )
 
 declare -a INTERFACES_FILES=(

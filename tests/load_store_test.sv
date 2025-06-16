@@ -12,8 +12,7 @@ import uvm_pkg::*;
 
 // Caminhos corrigidos baseados na estrutura mostrada
 `include "./tb/env/sequences/mem_transaction.sv"       // Transaction primeiro
-`include "./tb/env/agents/mem_agent.sv"                 // Componentes do agent
-`include "./tb/env/mem.env.sv"                          // Environment (note .env)
+`include "../env/mem.env.sv"                          // Environment (note .env)
 `include "./tb/env/sequences/load_store_sequence.sv"    // Sequence específica
 
 class load_store_test extends uvm_test;

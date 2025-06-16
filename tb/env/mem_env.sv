@@ -6,13 +6,13 @@
 import uvm_pkg::*;
 
 // Inclusões corretas com caminhos absolutos relativos
-`include "../env/agents/mem_agent.sv"
+`include "agents/mem_agent.sv"
 `include "mem_scoreboard.sv"
 
 class mem_env extends uvm_env;
   `uvm_component_utils(mem_env)
   
-  mem_agent agent;          // Agent instance
+  mem_agent agent;           // Agent instance
   mem_scoreboard scoreboard; // Scoreboard instance
   
   function new(string name, uvm_component parent);
