@@ -53,14 +53,14 @@ package riscv_pkg;
     endfunction
     
     function automatic lw_instr_t gen_lw_instr(
-        logic [4:0] rd,
-        logic [4:0] base_reg,
-        logic [11:0] offset
+        input logic [4:0] rd,
+        input logic [4:0] base_reg,
+        input logic [11:0] offset
     );
+        lw_instr_t instr;
         if (rd >= REG_COUNT || base_reg >= REG_COUNT) begin
             $error("Invalid register index in gen_lw_instr");
         end
-        lw_instr_t instr;
         instr.imm = offset;
         instr.rs1 = base_reg;
         instr.funct3 = LW_FUNCT3;
@@ -70,14 +70,14 @@ package riscv_pkg;
     endfunction
     
     function automatic sw_instr_t gen_sw_instr(
-        logic [4:0] base_reg,
-        logic [4:0] src_reg,
-        logic [11:0] offset
+        input logic [4:0] base_reg,
+        input logic [4:0] src_reg,
+        input logic [11:0] offset
     );
+        sw_instr_t instr;
         if (base_reg >= REG_COUNT || src_reg >= REG_COUNT) begin
             $error("Invalid register index in gen_sw_instr");
         end
-        sw_instr_t instr;
         instr.imm_11_5 = offset[11:5];
         instr.rs2 = src_reg;
         instr.rs1 = base_reg;

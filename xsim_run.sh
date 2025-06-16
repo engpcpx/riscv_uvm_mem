@@ -23,18 +23,23 @@ cd "$SCRIPT_DIR" || exit 1
 # File List
 # --------------------------------------------------
 declare -a RTL_FILES=(
-    "./rtl/riscv_definitions.sv"
     "./rtl/RISCV.sv"
     "./rtl/instruction_fetch.sv"
     "./rtl/instruction_decode.sv"
     "./rtl/execution.sv"
     "./rtl/memory_access.sv"
+    "./rtl/branch_unit.sv"
+    "./rtl/mux2to1.sv"
+    "./rtl/register_file.sv"
+    "./rtl/sign_extend.sv"
     "./rtl/hazard_control.sv"
+    "./rtl/alu.sv"
+    "./rtl/branch_unit.sv"
+    "./rtl/write_back.sv"
+    "./rtl/controller.sv"
 )
 
 declare -a TB_FILES=(
-    # "./interfaces/mem_interface.sv"
-    # "./interfaces/riscv_warapper.sv"
     "./tb/top_tb.sv"
     "./tb/env/sequences/mem_transaction.sv"
     "./tb/env/agents/mem_driver.sv"
@@ -56,6 +61,7 @@ declare -a TESTS_FILES=(
 
 declare -a INCLUDES_FILES=(
     "./includes/riscv_pkg.sv"
+    "./includes/riscv_definitions.sv"
 )
 
 # --------------------------------------------------
@@ -76,7 +82,7 @@ for file in "${RTL_FILES[@]}" "${TB_FILES[@]}" "${INTERFACES_FILES[@]}" "${TESTS
     fi
 done
 
-[ $MISSING_FILES -gt 0 ] && { echo "❌ Error: $MISSING_FILES files missing!"; exit 1; }
+[ $MISSING_FILES -gt 0 ] && { echo "Error: $MISSING_FILES files missing!"; exit 1; }
 
 # --------------------------------------------------
 # Clean Previous Runs
@@ -98,6 +104,13 @@ echo "--------------------------------------------------"
 echo "Compilation"
 echo "--------------------------------------------------"
 echo "Compiling files..."
+
+
+# First compile the package separately
+echo "Compiling riscv_definitions package..."
+xvlog -sv "./includes/riscv_definitions.sv" || { echo "Failed to compile riscv_definitions.sv"; exit 1; }
+
+# Then compile remaining files
 compile_files() {
     local file_type=$1
     shift
@@ -107,13 +120,27 @@ compile_files() {
     for file in "${files[@]}"; do
         echo ""
         echo "  Processing: $file"
-        xvlog -sv -L uvm "$file" || { echo "❌ Failed to compile $file"; exit 1; }
+        xvlog -sv -L uvm "$file" || { echo "Failed to compile $file"; exit 1; }
         echo "  ✓ Successfully processed: $file"
     done
 }
 
+# 1. Compile packages and definitions first (base dependencies)
+xvlog -sv "./includes/riscv_definitions.sv" || { echo "Failed to compile riscv_definitions.sv"; exit 1; }
+xvlog -sv "./includes/riscv_pkg.sv" || { echo "Failed to compile riscv_pkg.sv"; exit 1; }
+
+# 2. Interfaces (contains shared communication structures)
+compile_files "INTERFACES" "${INTERFACES_FILES[@]}"
+
+# 3. RTL (depends on definitions and interfaces)
 compile_files "RTL" "${RTL_FILES[@]}"
-compile_files "Testbench" "${TB_FILES[@]}"
+
+# 4. Testbench components (depends on RTL implementation)
+compile_files "TESTBENCH" "${TB_FILES[@]}"
+
+# 5. Tests (depends on all above components)
+compile_files "TESTS" "${TESTS_FILES[@]}"
+
 
 # --------------------------------------------------
 # Elaboration
@@ -123,7 +150,7 @@ echo "--------------------------------------------------"
 echo "Elaboration"
 echo "--------------------------------------------------"
 echo "Elaborating design..."
-xelab -debug typical -L uvm top_tb -timescale 1ns/1ps || { echo "❌ Elaboration failed!"; exit 1; }
+xelab -debug typical -L uvm top_tb -timescale 1ns/1ps || { echo "Elaboration failed!"; exit 1; }
 echo "✓ Elaboration completed successfully"
 
 # --------------------------------------------------
@@ -147,7 +174,7 @@ case "$SIM_MODE" in
         ;;
 esac
 
-[ $? -ne 0 ] && { echo "❌ Simulation failed!"; exit 1; }
+[ $? -ne 0 ] && { echo "Simulation failed!"; exit 1; }
 
 # --------------------------------------------------
 # Completion

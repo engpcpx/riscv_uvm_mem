@@ -12,12 +12,29 @@
 `include "uvm_macros.svh"
 import uvm_pkg::*;
 
-// Include test
-`include "../tests/load_store_test.sv"
-
-// Include interfaces
+// Include interfaces first
 `include "../interfaces/mem_interface.sv"
 `include "../interfaces/riscv_wrapper.sv"
+
+// Include transaction from sequences directory
+`include "../tb/sequences/mem_transaction.sv"
+
+// Include agent components
+`include "../tb/env/agents/mem_driver.sv"
+`include "../tb/env/agents/mem_monitor.sv"
+`include "../tb/env/agents/mem_sequencer.sv"
+`include "../tb/env/agents/mem_agent.sv"
+
+// Include environment
+`include "../tb/env/mem_scoreboard.sv"
+`include "../tb/env/mem.env.sv"
+
+// Include sequences
+`include "../tb/sequences/base_sequence.sv"
+`include "../tb/sequences/load_store_sequence.sv"
+
+// Include test last
+`include "../tb/tests/load_store_test.sv"
 
 module top_tb;
     
@@ -51,7 +68,7 @@ module top_tb;
     // UVM configuration and test execution
     initial begin
         // Set interface in config_db
-        uvm_config_db#(virtual mem_interface)::set(null, "*", "mem_if", mem_if);
+        uvm_config_db#(virtual mem_interface)::set(null, "*", "vif", mem_if);
         
         // Run the test
         run_test("load_store_test");
@@ -64,7 +81,7 @@ module top_tb;
         $finish;
     end
     
-    // Dump VCD for debugging (opcional)
+    // Dump VCD for debugging (optional)
     initial begin
         $dumpfile("waveform.vcd");
         $dumpvars(0, top_tb);

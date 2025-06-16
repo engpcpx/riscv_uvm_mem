@@ -1,3 +1,6 @@
+
+import riscv_definitions::*;  // Import package definitions
+
 module hazard_control (
     input logic clk,
 

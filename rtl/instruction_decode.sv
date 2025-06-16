@@ -15,14 +15,14 @@ module instruction_decode (
 
     output logic                  o_id_mem_to_reg,          // Select memory output as register write-back value
     output logic                  o_id_alu_src1,            // ALU source 1 select (e.g., PC or RS1)
-    output logic [1:0]            o_id_alu_src2,            // ALU source 2 select (e.g., IMM or RS2)
+    output logic                  o_id_alu_src2,            // ALU source 2 select (e.g., IMM or RS2)
     output logic                  o_id_reg_wr,              // Register write enable
     output logic                  o_id_mem_rd,              // Memory read enable
     output logic                  o_id_mem_wr,              // Memory write enable
-    output logic [1:0]            o_id_result_src,          // result source 1 select in write back (PC+4, alu_result, mem_read)
+    output logic                  o_id_result_src,          // result source 1 select in write back (PC+4, alu_result, mem_read)
 
     output logic                  o_id_branch,              // Branch instruction flag
-    output aluOp_t                o_id_alu_op,              // ALU operation control
+    output aluOpType              o_id_alu_op,              // ALU operation control
     output logic                  o_id_jump,                // Jump instruction flag
     output dataBus_t              o_id_pc,                  // Program Counter value to EX stage
     output dataBus_t              o_id_reg_read_data1,      // RS1 value output
@@ -34,18 +34,18 @@ module instruction_decode (
 );
 
 // Extract fields from instruction
-opcode_t     opcode;
-logic [4:0]  read_reg1_addr;
-logic [4:0]  read_reg2_addr;
-logic [4:0]  write_reg_addr;
-logic [2:0]  funct3;
-logic [6:0]  funct7;
+ opcodeType  opcode;
+ logic [4:0]  read_reg1_addr;
+ logic [4:0]  read_reg2_addr;
+ logic [4:0]  write_reg_addr;
+ logic [2:0]  funct3;
+ logic [6:0]  funct7;
 
-logic [31:0] id_instruction;
+ logic [31:0] id_instruction;
 
 assign id_instruction = (i_insert_nop) ? 32'd0 : i_if_inst;
 
-assign opcode         = opcode_t'(id_instruction[6:0]);
+assign  opcode         = opcodeType'(id_instruction[6:0]);
 assign read_reg1_addr = id_instruction[19:15];
 assign read_reg2_addr = id_instruction[24:20];
 assign write_reg_addr = id_instruction[11:7];
@@ -53,9 +53,9 @@ assign funct3         = id_instruction[14:12];
 assign funct7         = id_instruction[31:25];
 
 // Internal wires for controller outputs
-aluOp_t      alu_op;
-aluSrcSel_t  alu_src1;
-aluSrcSel_t  alu_src2;
+aluOpType    alu_op;
+aluSrc1_e    alu_src1;
+aluSrc2_e    alu_src2;
 logic        reg_write;
 logic        mem_write;
 logic        mem_read;
@@ -63,7 +63,7 @@ logic        mem_to_reg;
 logic        branch;
 logic        jump;
 logic [1:0]  result_src;
-immFormat_t  imm_src;
+imm_src_t    imm_src;
 dataBus_t    rs1;
 dataBus_t    rs2;
 dataBus_t    immG;
@@ -111,8 +111,8 @@ always_ff @(posedge clk or negedge rst_n) begin : proc_id_ex
     if (!rst_n || i_flush) begin
         o_id_mem_rd           <= 1'b0;
         o_id_mem_wr           <= 1'b0;
-        o_id_alu_src1         <= ALU_SRC_REG;
-        o_id_alu_src2         <= ALU_SRC_REG;
+        o_id_alu_src1         <= RS1;
+        o_id_alu_src2         <= RS2;
         o_id_alu_op           <= ALU_ADD;
         o_id_pc               <= '0;
         o_id_reg_read_data1   <= '0;
@@ -125,7 +125,7 @@ always_ff @(posedge clk or negedge rst_n) begin : proc_id_ex
         o_id_branch           <= 1'b0;
         o_id_mem_to_reg       <= 1'b0;
         o_id_jump             <= 1'b0;
-        o_id_result_src       <= 2'b00;
+        o_id_result_src       <= 1'b0;
     end else if (clk_en) begin
         o_id_mem_rd           <= mem_read;
         o_id_mem_wr           <= mem_write;

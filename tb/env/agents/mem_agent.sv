@@ -1,45 +1,86 @@
-// tb/env/agents/mem_agent.sv
-`ifndef MEM_AGENT_SV
-`define MEM_AGENT_SV
+// ========================================================
+// File: top_tb.sv
+// Description: Top-level testbench for RISC-V memory verification
+// ========================================================
 
+`ifndef TOP_TB_SV
+`define TOP_TB_SV
+
+`timescale 1ns/1ps
+
+// Include UVM
 `include "uvm_macros.svh"
 import uvm_pkg::*;
 
-// Incluir transaction primeiro
-`include "../sequences/mem_transaction.sv"
+// Include interfaces first
+`include "../../interfaces/mem_interface.sv"
+`include "../../interfaces/riscv_wrapper.sv"
 
-// Depois incluir componentes
-`include "mem_driver.sv"
-`include "mem_sequencer.sv"
-`include "mem_monitor.sv"
+// Include transaction (from sequences directory)
+`include "../../tb/sequences/mem_transaction.sv"
 
-class mem_agent extends uvm_agent;
-    `uvm_component_utils(mem_agent)
+// Include agent components (from agents directory)
+`include "../../tb/env/agents/mem_driver.sv"
+`include "../../tb/env/agents/mem_monitor.sv"
+`include "../../tb/env/agents/mem_sequencer.sv"
+
+// Include agent (from agents directory)
+`include "../../tb/env/agents/mem_agent.sv"
+
+// Include test (from tests directory)
+`include "../../tb/tests/load_store_test.sv"
+
+module top_tb;
     
-    mem_driver    driver;
-    mem_sequencer sequencer;
-    mem_monitor   monitor;
+    // Clock and reset
+    logic clk = 0;
+    logic rst_n = 0;
     
-    function new(string name, uvm_component parent);
-        super.new(name, parent);
-    endfunction
+    // Interface instance  
+    mem_interface mem_if(clk);
     
-    function void build_phase(uvm_phase phase);
-        super.build_phase(phase);
-        monitor = mem_monitor::type_id::create("monitor", this);
+    // DUT wrapper instance
+    riscv_wrapper dut (
+        .clk(clk),
+        .rst_n(rst_n),
+        .mem_if(mem_if.dut_mp)
+    );
+    
+    // Clock generation
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk; // 100MHz clock
+    end
+    
+    // Reset generation
+    initial begin
+        rst_n = 0;
+        #100;
+        rst_n = 1;
+    end
+    
+    // UVM configuration and test execution
+    initial begin
+        // Set interface in config_db
+        uvm_config_db#(virtual mem_interface)::set(null, "*", "vif", mem_if);
         
-        if(get_is_active() == UVM_ACTIVE) begin
-            driver = mem_driver::type_id::create("driver", this);
-            sequencer = mem_sequencer::type_id::create("sequencer", this);
-        end
-    endfunction
+        // Run the test
+        run_test("load_store_test");
+    end
     
-    function void connect_phase(uvm_phase phase);
-        super.connect_phase(phase);
-        if(get_is_active() == UVM_ACTIVE) begin
-            driver.seq_item_port.connect(sequencer.seq_item_export);
-        end
-    endfunction
-endclass
+    // Timeout protection
+    initial begin
+        #1000000; // 1ms timeout
+        $display("Timeout reached!");
+        $finish;
+    end
+    
+    // Dump VCD for debugging (optional)
+    initial begin
+        $dumpfile("waveform.vcd");
+        $dumpvars(0, top_tb);
+    end
+    
+endmodule
 
-`endif // MEM_AGENT_SV
+`endif // TOP_TB_SV

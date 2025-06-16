@@ -8,6 +8,8 @@
  *     and extension logic for various load instructions.
  **/
 
+import riscv_definitions::*;  // Import package definitions
+
 module memory_access(
     input  logic        clk,               // System clock
     input  logic        rst_n,             // Active-low reset
