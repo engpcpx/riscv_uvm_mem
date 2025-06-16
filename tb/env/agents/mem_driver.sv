@@ -3,13 +3,12 @@
 // Description: Corrected UVM driver for memory operations
 // ========================================================
 
-// /tb/env/agents/mem_driver.sv
-`ifndef MEM_AGENT_SV
-`define MEM_AGENT_SV
+`ifndef MEM_DRIVER_SV
+`define MEM_DRIVER_SV
 
 `include "uvm_macros.svh"
 import uvm_pkg::*;
-`include "../sequences/mem_transaction.sv"  // Adjusted path to go up one directory
+`include "tb/env/sequences/mem_transaction.sv"  // Adjusted path to go up one directory
 
 class mem_driver extends uvm_driver #(mem_transaction);
     `uvm_component_utils(mem_driver)
@@ -86,4 +85,4 @@ class mem_driver extends uvm_driver #(mem_transaction);
     
 endclass
 
-`endif // MEM_DRIVER_SV
+`endif //MEM_DRIVER_SV

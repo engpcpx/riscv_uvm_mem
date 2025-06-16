@@ -6,7 +6,7 @@
 import uvm_pkg::*;
 
 // Inclua a definição da transação
-`include "./sequences/mem_transaction.sv"
+`include "tb/env/sequences/mem_transaction.sv"
 
 class mem_scoreboard extends uvm_scoreboard;
   `uvm_component_utils(mem_scoreboard)

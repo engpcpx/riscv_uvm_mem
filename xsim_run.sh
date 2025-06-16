@@ -40,7 +40,6 @@ declare -a RTL_FILES=(
 )
 
 declare -a TB_FILES=(
-    "./tb/top_tb.sv"
     "./tb/env/sequences/mem_transaction.sv"
     "./tb/env/agents/mem_driver.sv"
     "./tb/env/agents/mem_monitor.sv"
@@ -48,6 +47,7 @@ declare -a TB_FILES=(
     "./tb/env/agents/mem_agent.sv"
     "./tb/env/mem_scoreboard.sv"
     "./tb/env/mem_env.sv"  
+    "./tb/top_tb.sv"
 )
 
 declare -a INTERFACES_FILES=(
@@ -67,8 +67,8 @@ declare -a INCLUDES_FILES=(
 # --------------------------------------------------
 # File Verification
 # --------------------------------------------------
-echo ""e
-cho "--------------------------------------------------"
+echo ""
+echo "--------------------------------------------------"
 echo "File Verification"
 echo "--------------------------------------------------"
 echo "Checking Structure Files.."
@@ -105,7 +105,6 @@ echo "Compilation"
 echo "--------------------------------------------------"
 echo "Compiling files..."
 
-
 # First compile the package separately
 echo "Compiling riscv_definitions package..."
 xvlog -sv "./includes/riscv_definitions.sv" || { echo "Failed to compile riscv_definitions.sv"; exit 1; }
@@ -141,7 +140,6 @@ compile_files "TESTBENCH" "${TB_FILES[@]}"
 # 5. Tests (depends on all above components)
 compile_files "TESTS" "${TESTS_FILES[@]}"
 
-
 # --------------------------------------------------
 # Elaboration
 # --------------------------------------------------
@@ -171,6 +169,15 @@ case "$SIM_MODE" in
     *)
         echo "Starting batch simulation..."
         xsim top_tb -runall -wdb $WAVE_DB
+        
+        # After batch simulation completes, offer to open the waveform in Vivado
+        echo ""
+        read -p "Simulation completed. Open waveform in Vivado? [y/N] " -n 1 -r
+        echo ""
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo "Opening waveform database in Vivado..."
+            /opt/xilinx/Vivado/2024.1/bin/vivado -source /opt/xilinx/Vivado/2024.1/scripts/Vivado/init.tcl -nolog -nojournal $WAVE_DB &
+        fi
         ;;
 esac
 

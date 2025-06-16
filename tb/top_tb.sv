@@ -31,7 +31,7 @@ import uvm_pkg::*;
 
 // Include environment components
 `include "tb/env/mem_scoreboard.sv"
-`include "../env/mem_env.sv"
+`include "tb/env/mem_env.sv"
 
 // Include tests
 `include "tests/load_store_test.sv"

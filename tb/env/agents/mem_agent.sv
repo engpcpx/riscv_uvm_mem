@@ -1,6 +1,5 @@
 // ========================================================
-// File: mem_agent.sv
-// Description: Complete UVM agent implementation for memory interface
+// File: mem_agent.sv (corrected version)
 // ========================================================
 
 `ifndef MEM_AGENT_SV
@@ -10,13 +9,12 @@
 import uvm_pkg::*;
 
 // Include transaction definition first
-`include "../sequencer/mem_transaction.sv"
-
+`include "../sequences/mem_transaction.sv"
 
 // Include subcomponent definitions with correct paths
-`include "mem_driver.sv"
-`include "mem_monitor.sv"
-`include "mem_sequencer.sv"
+`include "tb/env/agents/mem_driver.sv"
+`include "tb/env/agents/mem_monitor.sv"
+`include "tb/env/agents/mem_sequencer.sv"
 
 class mem_agent extends uvm_agent;
     `uvm_component_utils(mem_agent)
@@ -49,21 +47,18 @@ class mem_agent extends uvm_agent;
         end
     endfunction
     
-    // Connect Phase - connects components
+    // Connect Phase - connects components (corrected)
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
         
-        // Connect monitor to agent's analysis port
-        monitor.analysis_port.connect(this.analysis_port);
+        // Corrected connection: use monitor's item_collected_port
+        monitor.item_collected_port.connect(this.analysis_port);
         
         // Connect driver to sequencer if active
         if(get_is_active() == UVM_ACTIVE) begin
             driver.seq_item_port.connect(sequencer.seq_item_export);
         end
     endfunction
-    
-    // Additional agent functionality can be added here
-    // (run_phase, report_phase, etc. as needed)
     
 endclass
 

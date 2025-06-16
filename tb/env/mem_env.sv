@@ -6,8 +6,8 @@
 import uvm_pkg::*;
 
 // Inclusões corretas com caminhos absolutos relativos
-`include "agents/mem_agent.sv"
-`include "mem_scoreboard.sv"
+`include "tb/env/agents/mem_agent.sv"
+`include "tb/env/mem_scoreboard.sv"
 
 class mem_env extends uvm_env;
   `uvm_component_utils(mem_env)
