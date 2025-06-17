@@ -167,6 +167,8 @@ The testbench architecture enables:
 - **Maintainability**: Clear separation of concerns
 - **Scalability**: Easy to add monitors, scoreboard, etc.
 
+# Command Execution Line
+bash xsim_run.sh
 
 ## License
 

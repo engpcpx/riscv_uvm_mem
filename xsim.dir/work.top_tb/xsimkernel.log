@@ -1,7 +1,7 @@
-Running: xsim.dir/work.top_tb/xsimk -wdb riscv_sim_waves.wdb -runall -simmode gui -simrunnum 0 -socket 56949
+Running: xsim.dir/work.top_tb/xsimk -wdb riscv_sim_waves.wdb -runall -simmode gui -simrunnum 0 -socket 56261
 Design successfully loaded
 Design Loading Memory Usage: 33352 KB (Peak: 33352 KB)
 Design Loading CPU Usage: 20 ms
 Simulation completed
 Simulation Memory Usage: 128784 KB (Peak: 172620 KB)
-Simulation CPU Usage: 40 ms
+Simulation CPU Usage: 50 ms
