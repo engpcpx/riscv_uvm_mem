@@ -3,8 +3,8 @@
 # SW Build 5076996 on Wed May 22 18:36:09 MDT 2024
 # IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
 # SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
-# Start of session at: Mon Jun 16 15:08:25 2025
-# Process ID: 30749
+# Start of session at: Mon Jun 16 23:31:53 2025
+# Process ID: 137029
 # Current directory: /home/paulocezar/Documentos/UVM/riscv_uvm_mem
 # Command line: xsim -mode tcl -source {xsim.dir/work.top_tb/xsim_script.tcl}
 # Log file: /home/paulocezar/Documentos/UVM/riscv_uvm_mem/xsim.log
@@ -13,13 +13,13 @@
 # Platform          :Ubuntu
 # Operating System  :Ubuntu 24.04.2 LTS
 # Processor Detail  :AMD Ryzen 5 PRO 7530U with Radeon Graphics
-# CPU Frequency     :3345.605 MHz
+# CPU Frequency     :4266.371 MHz
 # CPU Physical cores:6
 # CPU Logical cores :12
 # Host memory       :16134 MB
 # Swap memory       :4294 MB
 # Total Virtual     :20429 MB
-# Available Virtual :11000 MB
+# Available Virtual :11531 MB
 #-----------------------------------------------------------
 source xsim.dir/work.top_tb/xsim_script.tcl
 # xsim {work.top_tb} -wdb {riscv_sim_waves.wdb} -autoloadwcfg -runall
@@ -46,20 +46,42 @@ UVM-1.2
       (Specify +UVM_NO_RELNOTES to turn off this notice)
 
 UVM_INFO @ 0: reporter [RNTST] Running test load_store_test...
-UVM_FATAL tb/env/agents/mem_driver.sv(25) @ 0: uvm_test_top.env.agent.driver [DRIVER] Virtual interface not found
-UVM_INFO /opt/xilinx/Vivado/2024.1/data/system_verilog/uvm_1.2/xlnx_uvm_package.sv(13673) @ 0: reporter [UVM/REPORT/SERVER] 
+UVM_INFO tb/env/mem_env.sv(34) @ 0: uvm_test_top.env [ENV] Memory environment setup complete
+UVM_INFO /opt/xilinx/Vivado/2024.1/data/system_verilog/uvm_1.2/xlnx_uvm_package.sv(20867) @ 0: reporter [UVM/COMP/NAMECHECK] This implementation of the component name checks requires DPI to be enabled
+UVM_INFO tests/load_store_test.sv(36) @ 0: uvm_test_top [TEST] Starting test sequence
+UVM_INFO tb/env/mem_scoreboard.sv(76) @ 15000: uvm_test_top.env.scoreboard [SCOREBOARD] Store verified @0x00000000 = 0xcafebabe (Total writes: 1)
+UVM_ERROR tb/env/mem_scoreboard.sv(85) @ 45000: uvm_test_top.env.scoreboard [SCOREBOARD] LOAD MISMATCH @0x00000000: Expected=0xcafebabe Actual=0x00000000 (Error #1)
+UVM_INFO tb/env/mem_scoreboard.sv(76) @ 55000: uvm_test_top.env.scoreboard [SCOREBOARD] Store verified @0x00000004 = 0xdeadbeef (Total writes: 2)
+UVM_ERROR tb/env/mem_scoreboard.sv(85) @ 85000: uvm_test_top.env.scoreboard [SCOREBOARD] LOAD MISMATCH @0x00000004: Expected=0xdeadbeef Actual=0x00000000 (Error #2)
+UVM_INFO tb/env/mem_scoreboard.sv(76) @ 95000: uvm_test_top.env.scoreboard [SCOREBOARD] Store verified @0x00000008 = 0x12345678 (Total writes: 3)
+UVM_ERROR tb/env/mem_scoreboard.sv(85) @ 125000: uvm_test_top.env.scoreboard [SCOREBOARD] LOAD MISMATCH @0x00000008: Expected=0x12345678 Actual=0x00000000 (Error #3)
+UVM_INFO tb/env/mem_scoreboard.sv(76) @ 135000: uvm_test_top.env.scoreboard [SCOREBOARD] Store verified @0x0000000c = 0xffffffff (Total writes: 4)
+UVM_INFO tests/load_store_test.sv(45) @ 1155000: uvm_test_top [TEST] Test completed
+UVM_INFO /opt/xilinx/Vivado/2024.1/data/system_verilog/uvm_1.2/xlnx_uvm_package.sv(19968) @ 1155000: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
+UVM_INFO tb/env/mem_scoreboard.sv(107) @ 1155000: uvm_test_top.env.scoreboard [SCOREBOARD SUMMARY] 
+Transactions Processed: 8
+Writes: 4
+Reads: 4
+Errors: 3
+UVM_ERROR tb/env/mem_scoreboard.sv(113) @ 1155000: uvm_test_top.env.scoreboard [SCOREBOARD] *** TEST FAILED - 3 mismatches detected ***
+UVM_INFO /opt/xilinx/Vivado/2024.1/data/system_verilog/uvm_1.2/xlnx_uvm_package.sv(13673) @ 1155000: reporter [UVM/REPORT/SERVER] 
 --- UVM Report Summary ---
 
 ** Report counts by severity
-UVM_INFO :    2
+UVM_INFO :   12
 UVM_WARNING :    0
-UVM_ERROR :    0
-UVM_FATAL :    1
+UVM_ERROR :    4
+UVM_FATAL :    0
 ** Report counts by id
-[DRIVER]     1
+[ENV]     1
 [RNTST]     1
+[SCOREBOARD]     8
+[SCOREBOARD SUMMARY]     1
+[TEST]     2
+[TEST_DONE]     1
+[UVM/COMP/NAMECHECK]     1
 [UVM/RELNOTES]     1
 
-$finish called at time : 0 fs : File "/opt/xilinx/Vivado/2024.1/data/system_verilog/uvm_1.2/xlnx_uvm_package.sv" Line 18538
+$finish called at time : 1155 ns : File "/opt/xilinx/Vivado/2024.1/data/system_verilog/uvm_1.2/xlnx_uvm_package.sv" Line 18699
 exit
-INFO: [Common 17-206] Exiting xsim at Mon Jun 16 15:08:28 2025...
+INFO: [Common 17-206] Exiting xsim at Mon Jun 16 23:31:55 2025...

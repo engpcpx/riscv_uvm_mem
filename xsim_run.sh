@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 echo "=== RISC-V UVM Testbench Simulation with XSIM ==="
 echo "=== Vivado 2024.1 - UVM 1.2 ==="
@@ -170,15 +170,15 @@ case "$SIM_MODE" in
         echo "Starting batch simulation..."
         xsim top_tb -runall -wdb $WAVE_DB
         
-        # After batch simulation completes, offer to open the waveform in Vivado
-        echo ""
-        read -p "Simulation completed. Open waveform in Vivado? [y/N] " -n 1 -r
-        echo ""
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            echo "Opening waveform database in Vivado..."
-            /opt/xilinx/Vivado/2024.1/bin/vivado -source /opt/xilinx/Vivado/2024.1/scripts/Vivado/init.tcl -nolog -nojournal $WAVE_DB &
-        fi
-        ;;
+        # # After batch simulation completes, offer to open the waveform in Vivado
+        # echo ""
+        # read -p "Simulation completed. Open waveform in Vivado? [y/N] " -n 1 -r
+        # echo ""
+        # if [[ $REPLY =~ ^[Yy]$ ]]; then
+        #     echo "Opening waveform database in Vivado..."
+        #     /opt/xilinx/Vivado/2024.1/bin/vivado -source /opt/xilinx/Vivado/2024.1/scripts/Vivado/init.tcl -nolog -nojournal $WAVE_DB &
+        # fi
+        # ;;
 esac
 
 [ $? -ne 0 ] && { echo "Simulation failed!"; exit 1; }
@@ -191,5 +191,5 @@ echo "--------------------------------------------------"
 echo "Completion"
 echo "--------------------------------------------------"
 echo "✓ Simulation completed successfully"
-echo "Waveform database: $WAVE_DB"
+# echo "Waveform database: $WAVE_DB"
 exit 0

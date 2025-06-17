@@ -8,7 +8,8 @@
 
 `include "uvm_macros.svh"
 import uvm_pkg::*;
-`include "tb/env/sequences/mem_transaction.sv"  // Adjusted path to go up one directory
+`include "tb/env/sequences/mem_transaction.sv"  
+`include "tb/env/agents/mem_driver.sv"  
 
 class mem_driver extends uvm_driver #(mem_transaction);
     `uvm_component_utils(mem_driver)

@@ -68,7 +68,7 @@ module top_tb;
     // UVM configuration and test execution
     initial begin
         // Set interface in config_db
-        uvm_config_db#(virtual mem_interface)::set(null, "*", "vif", mem_if);
+        uvm_config_db#(virtual mem_interface)::set(null, "*", "mem_if", mem_if);
         
         // Run the test
         run_test("load_store_test");
